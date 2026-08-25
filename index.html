@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="أصوات سوا — مكتبة كورالية مجتمعية من جوقة Óros وحبق ناس." />
+  <title>أصوات سوا | Óros</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">تجاوز إلى المحتوى</a>
+
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="#top" aria-label="أصوات سوا — الصفحة الرئيسية">
+        <span class="brand-mark" aria-hidden="true">◌</span>
+        <span>
+          <strong>أصوات سوا</strong>
+          <small>Óros × حبق ناس</small>
+        </span>
+      </a>
+      <nav aria-label="التنقل الرئيسي">
+        <a href="#songs">الأغاني</a>
+        <a href="#voices">أصوات الناس</a>
+        <a href="#learn">كيف نتعلّم؟</a>
+        <a href="#about">عن المشروع</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top">
+      <div class="wrap hero-grid">
+        <div>
+          <p class="eyebrow">مكتبة صغيرة للغناء معاً</p>
+          <h1>صوتك وحده جميل.<br />مع أصوات ثانية يصير مكان.</h1>
+          <p class="hero-copy">
+            تعلّم مقاطع كورالية قصيرة بصوتين إلى أربعة أصوات، استمع لكل دور وحده،
+            جرّب الغناء مع المجموعة، وشاركنا تسجيلك إذا رغبت.
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="#songs">ابدأ بأغنية</a>
+            <a class="button ghost" href="#learn">كيف أستخدم الصفحة؟</a>
+          </div>
+        </div>
+        <div class="wave-card" aria-label="تصميم تجريدي يمثل اجتماع الأصوات">
+          <div class="wave-lines" aria-hidden="true">
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
+          <p>صوت 1 + صوت 2 + صوت 3 + صوت 4</p>
+          <strong>صوت واحد مشترك</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="songs">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">المكتبة</p>
+            <h2>تعلّم أغنية</h2>
+          </div>
+          <p>هذه نسخة أولية. تُضاف التسجيلات والكلمات والحزم التدريبية مع تقدّم المشروع.</p>
+        </div>
+        <div class="song-grid" id="songGrid" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section class="section soft" id="learn">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">ثلاث خطوات</p>
+            <h2>كيف نتعلّم المقطع؟</h2>
+          </div>
+        </div>
+        <div class="steps">
+          <article><span>01</span><h3>اسمع دورك</h3><p>اختر الصوت المناسب واستمع إليه وحده أكثر من مرة.</p></article>
+          <article><span>02</span><h3>جرّبه لوحدك</h3><p>ردّد المقطع على مهلك. لا تحتاج معرفة بالنوتة الموسيقية.</p></article>
+          <article><span>03</span><h3>غنِّ مع المجموعة</h3><p>شغّل النسخة الجماعية أو نسخة التدريب وغنِّ دورك مكان الصوت الناقص.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="voices">
+      <div class="wrap two-col">
+        <div>
+          <p class="eyebrow">أصوات من الناس</p>
+          <h2>المكتبة تكبر كلما غنّينا سوا</h2>
+          <p>
+            سننشر هنا، بعد الموافقة والمراجعة، مقاطع قصيرة ناتجة عن الورش ومساهمات موسيقيين
+            ومجموعات محلية. يمكن نشر المقطع باسم أول أو باسم مستعار، ويمكن طلب سحبه لاحقاً.
+          </p>
+          <a class="button ghost" href="#contribute">أرسل مساهمة</a>
+        </div>
+        <div class="voice-list" id="voiceList">
+          <article class="voice-item placeholder">
+            <span>قريباً</span>
+            <strong>أول مقاطع الورش</strong>
+            <p>تظهر هنا المقاطع التي يوافق أصحابها على النشر.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section dark" id="contribute">
+      <div class="wrap two-col">
+        <div>
+          <p class="eyebrow">شارك بصوتك</p>
+          <h2>غنّيت أحد الأدوار؟</h2>
+          <p>
+            نموذج الإرسال في هذه النسخة تجريبي. عند ربط وجهة رفع آمنة سنتمكن من استقبال الصوت
+            أو الفيديو مع خيارات واضحة للاسم والموافقة على النشر.
+          </p>
+        </div>
+        <form class="contribution-form" id="contributionForm">
+          <label>الاسم الأول أو الاسم المستعار<input name="name" autocomplete="name" /></label>
+          <label>المدينة / المنطقة<input name="location" /></label>
+          <label>الأغنية<select name="song" id="songSelect"></select></label>
+          <label>الدور الصوتي<select name="part"><option>الصوت الأول</option><option>الصوت الثاني</option><option>الصوت الثالث</option><option>الصوت الرابع</option></select></label>
+          <label>الملف الصوتي أو الفيديو<input type="file" name="media" accept="audio/*,video/*" disabled /></label>
+          <label class="check"><input type="checkbox" name="publish" /> أوافق على مراجعة المساهمة للنشر.</label>
+          <label class="check"><input type="checkbox" name="showName" /> أوافق على إظهار الاسم الذي أدخلته.</label>
+          <button type="submit" class="button light">تجربة النموذج</button>
+          <p class="form-note" id="formNote">رفع الملفات غير مفعّل بعد.</p>
+        </form>
+      </div>
+    </section>
+
+    <section class="section soft" id="about">
+      <div class="wrap two-col">
+        <div>
+          <p class="eyebrow">عن أصوات سوا</p>
+          <h2>من الورشة إلى مورد مفتوح</h2>
+        </div>
+        <div class="prose">
+          <p>
+            «أصوات سوا» برنامج غناء مجتمعي تقوده حبق ناس بالشراكة مع جوقة Óros. يطوّر المشروع
+            مقاطع كورالية قصيرة وسهلة التعلّم، ويأخذها إلى الناس عبر ورش محلية، ثم يحوّل أفضل المواد
+            إلى مكتبة تدريبية يمكن استخدامها لاحقاً في المدارس والمراكز والمجموعات الصغيرة.
+          </p>
+          <p>
+            الهدف ليس تعليم الغناء الاحترافي، بل جعل الغناء الجماعي أكثر سهولة وقرباً، مع احترام
+            الخصوصية وحق المشاركين في اختيار ما إذا كانت أصواتهم أو أسماؤهم ستُنشر.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <dialog class="song-dialog" id="songDialog" aria-labelledby="dialogTitle">
+    <button class="dialog-close" id="dialogClose" aria-label="إغلاق">×</button>
+    <div id="songDetail"></div>
+  </dialog>
+
+  <footer>
+    <div class="wrap footer-inner">
+      <p>أصوات سوا — Óros × حبق ناس</p>
+      <p>نسخة أولية للمكتبة المجتمعية.</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
