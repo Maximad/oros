@@ -5,7 +5,6 @@ const songs = [
     subtitle: 'مقطع كورالي قصير',
     voices: 3,
     duration: '30–60 ثانية',
-    progress: 20,
     status: 'قيد الإعداد',
     description: 'ستُضاف هنا نبذة قصيرة عن الأغنية وسياقها بعد اختيار الريبرتوار النهائي.'
   },
@@ -15,7 +14,6 @@ const songs = [
     subtitle: 'مقطع كورالي قصير',
     voices: 2,
     duration: '30–60 ثانية',
-    progress: 10,
     status: 'قيد الإعداد',
     description: 'ستُضاف هنا نبذة قصيرة عن الأغنية وسياقها بعد اختيار الريبرتوار النهائي.'
   },
@@ -25,7 +23,6 @@ const songs = [
     subtitle: 'مقطع كورالي قصير',
     voices: 4,
     duration: '30–60 ثانية',
-    progress: 10,
     status: 'قيد الإعداد',
     description: 'ستُضاف هنا نبذة قصيرة عن الأغنية وسياقها بعد اختيار الريبرتوار النهائي.'
   },
@@ -35,58 +32,108 @@ const songs = [
     subtitle: 'مقطع كورالي قصير',
     voices: 3,
     duration: '30–60 ثانية',
-    progress: 10,
     status: 'قيد الإعداد',
     description: 'ستُضاف هنا نبذة قصيرة عن الأغنية وسياقها بعد اختيار الريبرتوار النهائي.'
   }
 ];
 
 const songGrid = document.querySelector('#songGrid');
-const songSelect = document.querySelector('#songSelect');
 const dialog = document.querySelector('#songDialog');
 const songDetail = document.querySelector('#songDetail');
 const dialogClose = document.querySelector('#dialogClose');
+const navToggle = document.querySelector('#navToggle');
+const mainNav = document.querySelector('#mainNav');
+
+function arabicVoiceCount(count) {
+  if (count === 2) return 'صوتان';
+  if (count === 3) return '3 أصوات';
+  if (count === 4) return '4 أصوات';
+  return `${count} أصوات`;
+}
 
 function renderSongs() {
-  songGrid.innerHTML = songs.map(song => `
-    <article class="song-card">
+  songGrid.innerHTML = songs.map((song, index) => `
+    <article class="song-card" data-index="0${index + 1}">
       <div class="song-card-top">
         <div>
           <p class="eyebrow">${song.subtitle}</p>
           <h3>${song.title}</h3>
-          <p class="song-meta">${song.voices} أصوات · ${song.duration}</p>
+          <p class="song-meta">${arabicVoiceCount(song.voices)} · ${song.duration}</p>
         </div>
         <span class="tag">${song.status}</span>
       </div>
-      <p>${song.description}</p>
-      <div class="progress" aria-label="تقدم تجهيز المادة"><span style="width:${song.progress}%"></span></div>
-      <button class="button ghost" type="button" data-song="${song.id}">افتح صفحة التدريب</button>
+      <p class="song-description">${song.description}</p>
+      <div class="song-card-footer">
+        <button class="song-open" type="button" data-song="${song.id}">افتح مساحة التدريب</button>
+        <span class="song-readiness"><i></i> البنية جاهزة</span>
+      </div>
     </article>
   `).join('');
-
-  songSelect.innerHTML = songs.map(song => `<option value="${song.id}">${song.title}</option>`).join('');
 }
 
-function openSong(song) {
-  const tracks = Array.from({ length: song.voices }, (_, i) => `
+function buildTracks(song) {
+  const soloTracks = Array.from({ length: song.voices }, (_, i) => `
     <div class="track">
-      <span>الصوت ${i + 1}</span>
-      <button disabled>الصوت قريباً</button>
+      <span class="track-copy">
+        <strong>الصوت ${i + 1}</strong>
+        <small>استمع لهذا الدور منفرداً ثم ردّده</small>
+      </span>
+      <span class="track-status">يُضاف قريباً</span>
     </div>
   `).join('');
 
+  return `
+    ${soloTracks}
+    <div class="track">
+      <span class="track-copy">
+        <strong>كل الأصوات معاً</strong>
+        <small>النسخة المرجعية الكاملة للمقطع</small>
+      </span>
+      <span class="track-status">يُضاف قريباً</span>
+    </div>
+    <div class="track">
+      <span class="track-copy">
+        <strong>نسخة التدريب</strong>
+        <small>غنِّ دورك بينما تسمع بقية المجموعة</small>
+      </span>
+      <span class="track-status">يُضاف قريباً</span>
+    </div>
+  `;
+}
+
+function openSong(song) {
   songDetail.innerHTML = `
     <p class="eyebrow">${song.status}</p>
     <h2 id="dialogTitle">${song.title}</h2>
-    <p>${song.description}</p>
-    <p class="song-meta">${song.voices} أصوات · ${song.duration}</p>
-    <h3>تعلّم دورك</h3>
-    <div class="track-list">${tracks}</div>
-    <div class="track"><span>كل الأصوات معاً</span><button disabled>التسجيل قريباً</button></div>
-    <div class="track"><span>نسخة للتدريب</span><button disabled>قريباً</button></div>
-    <p class="form-note">سنضيف الكلمات، ملفات MP3 المنفصلة، والنسخة الجماعية عند جاهزية التسجيلات.</p>
+    <p class="dialog-intro">${song.description}</p>
+    <p class="song-meta">${arabicVoiceCount(song.voices)} · ${song.duration}</p>
+
+    <div class="training-block">
+      <h3>1. اختَر دورك</h3>
+      <p class="training-help">سنضع هنا تسجيل كل خط صوتي بشكل منفصل لتتعلمه بالأذن.</p>
+      <div class="track-list">${buildTracks(song)}</div>
+    </div>
+
+    <div class="dialog-note">
+      عند إضافة التسجيلات الحقيقية، ستتحول هذه الصفوف إلى مشغلات صوت مباشرة مع زر إعادة بسيط، من دون الحاجة لتنزيل أي ملف.
+    </div>
   `;
   dialog.showModal();
+}
+
+function closeMenu() {
+  mainNav.classList.remove('open');
+  navToggle.setAttribute('aria-expanded', 'false');
+  navToggle.setAttribute('aria-label', 'فتح القائمة');
+  document.body.classList.remove('nav-open');
+}
+
+function toggleMenu() {
+  const willOpen = navToggle.getAttribute('aria-expanded') !== 'true';
+  mainNav.classList.toggle('open', willOpen);
+  navToggle.setAttribute('aria-expanded', String(willOpen));
+  navToggle.setAttribute('aria-label', willOpen ? 'إغلاق القائمة' : 'فتح القائمة');
+  document.body.classList.toggle('nav-open', willOpen);
 }
 
 songGrid.addEventListener('click', (event) => {
@@ -101,9 +148,22 @@ dialog.addEventListener('click', (event) => {
   if (event.target === dialog) dialog.close();
 });
 
-document.querySelector('#contributionForm').addEventListener('submit', (event) => {
-  event.preventDefault();
-  document.querySelector('#formNote').textContent = 'هذه نسخة تجريبية فقط؛ لم يتم إرسال أي بيانات.';
+dialog.addEventListener('close', () => {
+  const trigger = document.querySelector(`[data-song]`);
+  if (trigger && document.activeElement === document.body) trigger.focus();
+});
+
+navToggle.addEventListener('click', toggleMenu);
+mainNav.addEventListener('click', (event) => {
+  if (event.target.closest('a')) closeMenu();
+});
+
+window.addEventListener('resize', () => {
+  if (window.innerWidth > 760) closeMenu();
+});
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && mainNav.classList.contains('open')) closeMenu();
 });
 
 renderSongs();
