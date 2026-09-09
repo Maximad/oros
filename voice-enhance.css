@@ -35,6 +35,28 @@
   white-space: nowrap;
 }
 
+.safe-presets {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.safe-presets button {
+  min-height: 36px;
+  border: 1px solid #000;
+  background: #fff;
+  color: #000;
+  padding: 0 14px;
+  cursor: pointer;
+  font-family: "Lifta", Tahoma, Arial, sans-serif;
+  font-size: 11px;
+}
+
+.safe-presets button.active {
+  background: #000;
+  color: #fff;
+}
+
 .safe-controls {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -85,7 +107,13 @@
 @media (max-width: 760px) {
   .safe-head { display: grid; }
   .safe-badge { justify-self: start; }
+  .safe-presets { display: grid; grid-template-columns: repeat(3, 1fr); }
+  .safe-presets button { padding-inline: 8px; }
   .safe-controls { grid-template-columns: 1fr; }
   .safe-actions { grid-template-columns: 1fr; }
   .safe-actions .training-action { width: 100%; }
+}
+
+@media (max-width: 420px) {
+  .safe-presets { grid-template-columns: 1fr; }
 }
