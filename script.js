@@ -1,12 +1,13 @@
 const songs = [
   {
     id: 'song-1',
-    title: 'الأغنية الأولى',
-    subtitle: 'مقطع كورالي قصير',
-    voices: 3,
-    duration: '30–60 ثانية',
-    status: 'قيد الإعداد',
-    description: 'ستُضاف هنا نبذة قصيرة عن الأغنية وسياقها بعد اختيار الريبرتوار النهائي.'
+    title: 'وصلة تراثية',
+    subtitle: 'وصلة كورالية تراثية',
+    voices: 6,
+    duration: '1:05',
+    status: 'قيد التجهيز للنشر',
+    description: 'وصلة تراثية موزعة على ستة مسارات صوتية منفصلة للتعلّم والتدريب الجماعي.',
+    parts: ['سوبرانو', 'ألتو', 'تينور', 'باص', 'دوبل', 'كونتر']
   },
   {
     id: 'song-2',
@@ -48,6 +49,7 @@ function arabicVoiceCount(count) {
   if (count === 2) return 'صوتان';
   if (count === 3) return '3 أصوات';
   if (count === 4) return '4 أصوات';
+  if (count === 6) return '6 مسارات صوتية';
   return `${count} أصوات`;
 }
 
@@ -72,10 +74,11 @@ function renderSongs() {
 }
 
 function buildTracks(song) {
-  const soloTracks = Array.from({ length: song.voices }, (_, i) => `
+  const partNames = song.parts || Array.from({ length: song.voices }, (_, i) => `الصوت ${i + 1}`);
+  const soloTracks = partNames.map((part) => `
     <div class="track">
       <span class="track-copy">
-        <strong>الصوت ${i + 1}</strong>
+        <strong>${part}</strong>
         <small>استمع لهذا الدور منفرداً ثم ردّده</small>
       </span>
       <span class="track-status">يُضاف قريباً</span>
