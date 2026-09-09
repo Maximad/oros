@@ -1,3 +1,31 @@
+@font-face {
+  font-family: "Lifta";
+  src: url("https://aswat.habaq.online/assets/fonts/Lifta-Black.otf") format("opentype");
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+}
+
+/* Lifta is a Black display face, so it is used for headings and key UI while body copy stays readable. */
+h1,
+h2,
+h3,
+.brand-copy strong,
+nav a,
+.button,
+.eyebrow,
+.song-open,
+.tag,
+.step-number,
+.partner-role,
+.footer-brand > span,
+.coming-pill,
+.track-copy strong,
+.contribution-status strong {
+  font-family: "Lifta", Tahoma, Arial, "Noto Sans Arabic", sans-serif;
+  font-weight: 900;
+}
+
 .training-audio {
   width: min(360px, 100%);
   height: 40px;
@@ -26,15 +54,15 @@
 .partners-head { margin-bottom: 28px; }
 
 /* Real Óros branding */
-.brand { gap: 18px; }
+.brand { gap: 22px; }
 .brand-logo {
-  width: 44px;
-  height: 54px;
+  width: 54px;
+  height: 68px;
   object-fit: contain;
   flex: 0 0 auto;
-  transform: scale(1.65);
+  transform: scale(1.95);
   transform-origin: center;
-  margin-inline: 7px;
+  margin-inline: 11px;
 }
 
 .hero-logo-panel {
@@ -53,7 +81,7 @@
   place-items: center;
   border: 1px solid #000;
   background: #fff;
-  padding: clamp(28px, 5vw, 58px);
+  padding: clamp(22px, 4vw, 46px);
   position: relative;
   overflow: hidden;
 }
@@ -84,7 +112,7 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
-  transform: scale(1.82);
+  transform: scale(2.25);
   transform-origin: center;
 }
 
@@ -175,9 +203,9 @@
 
 /* Optical normalization: source assets contain different amounts of whitespace */
 .oros-partner-logo {
-  width: 118px;
-  height: 96px;
-  transform: scale(1.85);
+  width: 138px;
+  height: 112px;
+  transform: scale(2.35);
   transform-origin: center;
 }
 .nas-partner-logo {
@@ -196,14 +224,14 @@
 
 /* Footer credits */
 .footer-expanded { align-items: center; gap: 36px; }
-.footer-brand { display: flex; align-items: center; gap: 18px; overflow: visible; }
+.footer-brand { display: flex; align-items: center; gap: 22px; overflow: visible; }
 .footer-oros-logo {
-  width: 36px;
-  height: 46px;
+  width: 46px;
+  height: 58px;
   object-fit: contain;
-  transform: scale(1.6);
+  transform: scale(2.05);
   transform-origin: center;
-  margin-inline: 6px;
+  margin-inline: 10px;
 }
 .footer-brand > span { color: #000; font-size: 14px; font-weight: 800; }
 .footer-credit-logos {
@@ -230,7 +258,7 @@
   .wrap { width: min(100% - 32px, 1180px); }
   .site-header { background: rgba(255,255,255,.98); }
   .header-inner { min-height: 70px; }
-  .brand-logo { width: 34px; height: 42px; transform: scale(1.55); }
+  .brand-logo { width: 42px; height: 54px; transform: scale(1.85); margin-inline: 8px; }
   .brand-copy small { display: none; }
 
   .nav-toggle {
@@ -260,7 +288,7 @@
   nav.open { display: flex; }
   nav a {
     font-size: clamp(18px, 4vw, 24px);
-    font-weight: 800;
+    font-weight: 900;
     padding: 14px 0;
     border-bottom: 1px solid var(--line);
   }
@@ -271,6 +299,7 @@
   .hero-grid { gap: 44px; }
   .hero-logo-panel { min-height: auto; padding: 8px 0 12px; }
   .hero-logo-frame { width: min(330px, 74vw); }
+  .hero-logo-frame img { transform: scale(2.15); }
 
   .photo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 220px; }
 
@@ -278,6 +307,7 @@
   .partner-item + .partner-item { border-inline-start: 0; border-top: 1px solid #000; }
   .partner-item { min-height: 185px; }
   .partner-logo-wrap, .producer-logos { height: 108px; }
+  .oros-partner-logo { transform: scale(2.15); }
 
   .footer-expanded { align-items: flex-start; flex-direction: column; }
   .footer-credit-logos { justify-content: flex-start; }
@@ -309,11 +339,12 @@
 
   .partner-item { padding: 20px; }
   .producer-logos { gap: 24px; }
-  .oros-partner-logo { transform: scale(1.65); }
+  .oros-partner-logo { transform: scale(2); }
   .nas-partner-logo { width: 88px; }
   .habaq-partner-logo { width: 98px; }
   .afh-logo { width: 160px; }
 
+  .footer-oros-logo { width: 40px; height: 50px; transform: scale(1.9); }
   .footer-credit-logos {
     display: grid;
     grid-template-columns: auto repeat(2, minmax(0, auto));
@@ -324,7 +355,8 @@
 }
 
 @media (max-width: 420px) {
-  .hero-logo-frame { width: 80vw; padding: 36px; }
+  .hero-logo-frame { width: 80vw; padding: 30px; }
+  .hero-logo-frame img { transform: scale(2.05); }
   .hero-facts { grid-template-columns: 1fr 1fr 1fr; }
   .partner-logo-wrap, .producer-logos { height: 100px; }
   .producer-logos { gap: 16px; }
