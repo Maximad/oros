@@ -5,9 +5,17 @@ const songs = [
     subtitle: 'وصلة كورالية تراثية',
     voices: 6,
     duration: '1:05',
-    status: 'قيد التجهيز للنشر',
+    status: 'متاحة للتدريب',
     description: 'وصلة تراثية موزعة على ستة مسارات صوتية منفصلة للتعلّم والتدريب الجماعي.',
-    parts: ['سوبرانو', 'ألتو', 'تينور', 'باص', 'دوبل', 'كونتر']
+    parts: [
+      { name: 'سوبرانو', file: 'soprano.mp3' },
+      { name: 'ألتو', file: 'alto.mp3' },
+      { name: 'تينور', file: 'tenor.mp3' },
+      { name: 'باص', file: 'bass.mp3' },
+      { name: 'دوبل', file: 'dubl.mp3' },
+      { name: 'كونتر', file: 'konter.mp3' }
+    ],
+    audioBase: 'https://aswat.habaq.online/assets/audio/wasla-turathiya/'
   },
   {
     id: 'song-2',
@@ -44,6 +52,7 @@ const songDetail = document.querySelector('#songDetail');
 const dialogClose = document.querySelector('#dialogClose');
 const navToggle = document.querySelector('#navToggle');
 const mainNav = document.querySelector('#mainNav');
+let lastSongTrigger = null;
 
 function arabicVoiceCount(count) {
   if (count === 2) return 'صوتان';
@@ -54,28 +63,46 @@ function arabicVoiceCount(count) {
 }
 
 function renderSongs() {
-  songGrid.innerHTML = songs.map((song, index) => `
-    <article class="song-card" data-index="0${index + 1}">
-      <div class="song-card-top">
-        <div>
-          <p class="eyebrow">${song.subtitle}</p>
-          <h3>${song.title}</h3>
-          <p class="song-meta">${arabicVoiceCount(song.voices)} · ${song.duration}</p>
+  songGrid.innerHTML = songs.map((song, index) => {
+    const ready = Array.isArray(song.parts) && song.parts.length > 0 && song.audioBase;
+    return `
+      <article class="song-card" data-index="0${index + 1}">
+        <div class="song-card-top">
+          <div>
+            <p class="eyebrow">${song.subtitle}</p>
+            <h3>${song.title}</h3>
+            <p class="song-meta">${arabicVoiceCount(song.voices)} · ${song.duration}</p>
+          </div>
+          <span class="tag">${song.status}</span>
         </div>
-        <span class="tag">${song.status}</span>
-      </div>
-      <p class="song-description">${song.description}</p>
-      <div class="song-card-footer">
-        <button class="song-open" type="button" data-song="${song.id}">افتح مساحة التدريب</button>
-        <span class="song-readiness"><i></i> البنية جاهزة</span>
-      </div>
-    </article>
-  `).join('');
+        <p class="song-description">${song.description}</p>
+        <div class="song-card-footer">
+          <button class="song-open" type="button" data-song="${song.id}">افتح مساحة التدريب</button>
+          <span class="song-readiness"><i></i> ${ready ? 'المسارات متاحة' : 'قيد التجهيز'}</span>
+        </div>
+      </article>
+    `;
+  }).join('');
 }
 
 function buildTracks(song) {
-  const partNames = song.parts || Array.from({ length: song.voices }, (_, i) => `الصوت ${i + 1}`);
-  const soloTracks = partNames.map((part) => `
+  if (Array.isArray(song.parts) && song.parts.length && song.audioBase) {
+    return song.parts.map((part, index) => `
+      <div class="track track-ready">
+        <span class="track-copy">
+          <strong>${part.name}</strong>
+          <small>المسار ${index + 1} من ${song.parts.length} · استمع للدور ثم ردّده</small>
+        </span>
+        <audio class="training-audio" controls preload="metadata" controlsList="nodownload" aria-label="مسار ${part.name}">
+          <source src="${song.audioBase}${part.file}" type="audio/mpeg" />
+          متصفحك لا يدعم تشغيل الصوت.
+        </audio>
+      </div>
+    `).join('');
+  }
+
+  const partNames = Array.from({ length: song.voices }, (_, i) => `الصوت ${i + 1}`);
+  return partNames.map((part) => `
     <div class="track">
       <span class="track-copy">
         <strong>${part}</strong>
@@ -84,27 +111,19 @@ function buildTracks(song) {
       <span class="track-status">يُضاف قريباً</span>
     </div>
   `).join('');
-
-  return `
-    ${soloTracks}
-    <div class="track">
-      <span class="track-copy">
-        <strong>كل الأصوات معاً</strong>
-        <small>النسخة المرجعية الكاملة للمقطع</small>
-      </span>
-      <span class="track-status">يُضاف قريباً</span>
-    </div>
-    <div class="track">
-      <span class="track-copy">
-        <strong>نسخة التدريب</strong>
-        <small>غنِّ دورك بينما تسمع بقية المجموعة</small>
-      </span>
-      <span class="track-status">يُضاف قريباً</span>
-    </div>
-  `;
 }
 
-function openSong(song) {
+function stopDialogAudio() {
+  songDetail.querySelectorAll('audio').forEach((audio) => {
+    audio.pause();
+    audio.currentTime = 0;
+  });
+}
+
+function openSong(song, trigger) {
+  lastSongTrigger = trigger || null;
+  const hasAudio = Array.isArray(song.parts) && song.parts.length > 0 && song.audioBase;
+
   songDetail.innerHTML = `
     <p class="eyebrow">${song.status}</p>
     <h2 id="dialogTitle">${song.title}</h2>
@@ -112,16 +131,34 @@ function openSong(song) {
     <p class="song-meta">${arabicVoiceCount(song.voices)} · ${song.duration}</p>
 
     <div class="training-block">
-      <h3>1. اختَر دورك</h3>
-      <p class="training-help">سنضع هنا تسجيل كل خط صوتي بشكل منفصل لتتعلمه بالأذن.</p>
+      <h3>اختَر دورك واستمع</h3>
+      <p class="training-help">${hasAudio
+        ? 'شغّل المسار الذي تريد تعلّمه. عند تشغيل مسار جديد سيتوقف المسار السابق تلقائياً.'
+        : 'ستُضاف هنا تسجيلات الخطوط الصوتية المنفصلة لتعلّمها بالأذن.'}</p>
       <div class="track-list">${buildTracks(song)}</div>
     </div>
 
     <div class="dialog-note">
-      عند إضافة التسجيلات الحقيقية، ستتحول هذه الصفوف إلى مشغلات صوت مباشرة مع زر إعادة بسيط، من دون الحاجة لتنزيل أي ملف.
+      ${hasAudio
+        ? 'نصيحة: استمع إلى المسار مرتين أو ثلاثاً، ثم غنِّ معه قبل الانتقال إلى بقية الأصوات.'
+        : 'هذه المادة ما زالت قيد التجهيز.'}
     </div>
   `;
+
+  songDetail.querySelectorAll('audio').forEach((audio) => {
+    audio.addEventListener('play', () => {
+      songDetail.querySelectorAll('audio').forEach((other) => {
+        if (other !== audio) other.pause();
+      });
+    });
+  });
+
   dialog.showModal();
+}
+
+function closeDialog() {
+  stopDialogAudio();
+  dialog.close();
 }
 
 function closeMenu() {
@@ -143,17 +180,21 @@ songGrid.addEventListener('click', (event) => {
   const button = event.target.closest('[data-song]');
   if (!button) return;
   const song = songs.find(item => item.id === button.dataset.song);
-  if (song) openSong(song);
+  if (song) openSong(song, button);
 });
 
-dialogClose.addEventListener('click', () => dialog.close());
+dialogClose.addEventListener('click', closeDialog);
 dialog.addEventListener('click', (event) => {
-  if (event.target === dialog) dialog.close();
+  if (event.target === dialog) closeDialog();
+});
+
+dialog.addEventListener('cancel', (event) => {
+  event.preventDefault();
+  closeDialog();
 });
 
 dialog.addEventListener('close', () => {
-  const trigger = document.querySelector(`[data-song]`);
-  if (trigger && document.activeElement === document.body) trigger.focus();
+  if (lastSongTrigger) lastSongTrigger.focus();
 });
 
 navToggle.addEventListener('click', toggleMenu);
