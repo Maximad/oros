@@ -43,6 +43,7 @@
   let takeUrl = null;
   let takeAudio = null;
   let audioContext = null;
+  const RECORDING_GUIDE_MAX_VOLUME = 0.25;
 
   const $ = (sel) => detail.querySelector(sel);
   const $$ = (sel) => [...detail.querySelectorAll(sel)];
@@ -157,7 +158,9 @@
   async function playVoiceSegment(recording=false, done=null) {
     if(voiceIndex===null) return;
     const a=voiceAudio(), seg=segment();
-    stopAll(false); a.currentTime=seg.start; a.volume=volume;
+    stopAll(false);
+    a.currentTime=seg.start;
+    a.volume=recording ? Math.min(volume, RECORDING_GUIDE_MAX_VOLUME) : volume;
     try{
       await a.play(); mode=recording?'recording':'segment';
       if(!recording) $('#coachSegmentListen').textContent='إيقاف المقطع';
@@ -166,7 +169,7 @@
   }
 
   function ensureContext(){ if(!audioContext){ const C=window.AudioContext||window.webkitAudioContext; if(C) audioContext=new C(); } return audioContext; }
-  function beep(freq){ const c=ensureContext(); if(!c) return; const o=c.createOscillator(),g=c.createGain(); o.frequency.value=freq; g.gain.value=.05; o.connect(g).connect(c.destination); o.start(); o.stop(c.currentTime+.09); }
+  function beep(freq){ const c=ensureContext(); if(!c) return; const o=c.createOscillator(),g=c.createGain(); o.frequency.value=freq; g.gain.value=.03; o.connect(g).connect(c.destination); o.start(); o.stop(c.currentTime+.09); }
 
   async function countIn(){ const box=$('#coachCount'); box.hidden=false; for(const n of [3,2,1]){ box.textContent=n; beep(n===1?980:720); await delay(650); } box.textContent='ابدأ'; beep(1120); await delay(280); box.hidden=true; }
 
@@ -186,7 +189,7 @@
       recorder.ondataavailable=e=>{ if(e.data.size) chunks.push(e.data); };
       recorder.onstop=async()=>{ const blob=new Blob(chunks,{type:recorder.mimeType||'audio/webm'}); takeUrl=URL.createObjectURL(blob); takeAudio=new Audio(takeUrl); takeAudio.volume=volume; $('#coachPlayTake').disabled=false; const vals=await blobPeaks(blob); $('#coachTakeWave').innerHTML=waveMarkup(vals,'coachRecordedWave'); $('#coachTakePreview').hidden=false; $('#coachStatus').innerHTML='<strong>تم تسجيل المحاولة.</strong> استمع إليها مع الكورال أو أعد التسجيل.'; $('#coachRecord').textContent='سجّل صوتك'; $('#coachRecord').classList.remove('recording'); stopMic(); takeAudio.ontimeupdate=()=>setWave('coachRecordedWave',takeAudio.duration?takeAudio.currentTime/takeAudio.duration:0); };
       $('#coachRecord').classList.add('recording'); $('#coachRecord').textContent='استعد…'; $('#coachStatus').textContent='استعد. يبدأ التسجيل بعد العدّ التنازلي.';
-      await countIn(); recorder.start(); $('#coachRecord').textContent='إيقاف التسجيل'; $('#coachStatus').textContent=`التسجيل جارٍ على صوت ${VOICES[voiceIndex].name}.`;
+      await countIn(); recorder.start(); $('#coachRecord').textContent='إيقاف التسجيل'; $('#coachStatus').textContent=`التسجيل جارٍ على صوت ${VOICES[voiceIndex].name}. تم خفض صوت الدليل تلقائياً أثناء التسجيل.`;
       await playVoiceSegment(true,()=>{ if(recorder?.state==='recording') recorder.stop(); });
     }catch(_){ stopMic(); $('#coachRecord').textContent='سجّل صوتك'; $('#coachRecord').classList.remove('recording'); $('#coachStatus').textContent='تعذّر الوصول إلى الميكروفون. تحقّق من إذن المتصفح.'; }
   }
@@ -206,7 +209,7 @@
       <audio id="coachVoiceAudio" preload="metadata"></audio><audio id="coachMixAudio" preload="metadata" src="${song.base}all-voices.mp3"></audio></section>
       <section class="coach-practice"><div class="coach-section-head"><div><p class="eyebrow">الخطوة الثانية</p><h3>تعلّم الأغنية مقطعاً مقطعاً</h3><p>استمع إلى طبقتك، ثم سجّلها وقارنها بالكورال.</p></div><div class="coach-segments">${song.segments.map((s,i)=>`<button type="button" data-coach-segment="${i}" class="${i===0?'active':''}">${s.label}</button>`).join('')}</div></div>
       <div id="coachSummary" class="coach-summary"></div><div class="coach-lyrics"><span>الكلمات</span><p id="coachLyrics" class="is-empty">الكلمات قيد الإضافة.</p></div><div id="coachSegmentInfo" class="segment-info"></div>
-      <div class="coach-flow"><article><span>01</span><strong>استمع</strong><p>اسمع طبقتك في المقطع قبل التسجيل.</p><button id="coachSegmentListen" class="training-action" type="button" disabled>استمع إلى صوتك في هذا المقطع</button></article><article class="coach-record"><span>02</span><strong>سجّل</strong><p>بعد العدّ 3، 2، 1 يبدأ الصوت ويبدأ التسجيل معه.</p><button id="coachRecord" class="training-action primary" type="button" disabled>سجّل صوتك</button><div id="coachCount" class="coach-count" hidden></div></article><article><span>03</span><strong>قارن</strong><p>استمع إلى تسجيلك مع المزيج الكامل للكورال.</p><button id="coachPlayTake" class="training-action" type="button" disabled>استمع إلى تسجيلك مع الكورال</button></article></div>
+      <div class="coach-flow"><article><span>01</span><strong>استمع</strong><p>اسمع طبقتك في المقطع قبل التسجيل.</p><button id="coachSegmentListen" class="training-action" type="button" disabled>استمع إلى صوتك في هذا المقطع</button></article><article class="coach-record"><span>02</span><strong>سجّل</strong><p>بعد العدّ 3، 2، 1 يبدأ الصوت ويبدأ التسجيل معه بمستوى منخفض مناسب للسماعة الخارجية.</p><button id="coachRecord" class="training-action primary" type="button" disabled>سجّل صوتك</button><div id="coachCount" class="coach-count" hidden></div></article><article><span>03</span><strong>قارن</strong><p>استمع إلى تسجيلك مع المزيج الكامل للكورال.</p><button id="coachPlayTake" class="training-action" type="button" disabled>استمع إلى تسجيلك مع الكورال</button></article></div>
       <div id="coachTakePreview" class="coach-take" hidden><div><span class="eyebrow">تسجيلك</span><strong>المحاولة الحالية</strong></div><div id="coachTakeWave"></div></div><div class="coach-bottom"><p id="coachStatus">اختر طبقتك أولاً.</p><button id="coachNext" class="training-action" type="button">المقطع التالي</button></div><p class="segment-note">التسجيل يبقى على جهازك أثناء هذه الجلسة ولا يُرفع إلى الموقع. يُفضّل استخدام سماعات رأس.</p></section></div>`;
 
     const va=voiceAudio(),ma=mixAudio(); ma.volume=volume;
