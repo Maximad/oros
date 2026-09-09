@@ -171,26 +171,28 @@ nav a,
   border: 1px solid #000;
 }
 .partner-item {
-  min-height: 220px;
-  padding: 24px 26px;
+  min-height: 205px;
+  padding: 22px 26px 18px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 18px;
+  gap: 14px;
   min-width: 0;
 }
 .partner-item + .partner-item { border-inline-start: 1px solid #000; }
 .partner-role { color: var(--muted); font-size: 11px; }
 
+/* Every partner mark sits in the same-height zone and shares one visual baseline. */
 .partner-logo-wrap,
 .producer-logos {
-  height: 130px;
+  height: 118px;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
   gap: 34px;
   flex-wrap: nowrap;
   overflow: visible;
+  padding-bottom: 6px;
 }
 
 .partner-logo {
@@ -198,28 +200,32 @@ nav a,
   width: 150px;
   height: 88px;
   object-fit: contain;
+  object-position: center bottom;
   flex: 0 0 auto;
 }
 
-/* Optical normalization: source assets contain different amounts of whitespace */
+/* Optical normalization: source assets contain different amounts of internal whitespace. */
 .oros-partner-logo {
   width: 138px;
   height: 112px;
   transform: scale(2.35);
-  transform-origin: center;
+  transform-origin: center bottom;
 }
 .nas-partner-logo {
-  width: 100px;
+  width: 112px;
   height: 72px;
-  transform: scale(1.12);
+  transform: scale(1.48);
+  transform-origin: center bottom;
 }
 .habaq-partner-logo {
   width: 112px;
   height: 72px;
+  transform-origin: center bottom;
 }
 .afh-logo {
   width: 178px;
   height: 92px;
+  transform-origin: center bottom;
 }
 
 /* Footer credits */
@@ -236,14 +242,23 @@ nav a,
 .footer-brand > span { color: #000; font-size: 14px; font-weight: 800; }
 .footer-credit-logos {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: flex-end;
   gap: 12px;
   flex-wrap: wrap;
 }
-.footer-credit-logos > span { color: var(--muted); font-size: 10px; }
-.footer-credit-logos img { width: auto; height: 32px; object-fit: contain; }
-.footer-credit-logos .footer-nas { width: 48px; transform: scale(1.08); }
+.footer-credit-logos > span { color: var(--muted); font-size: 10px; padding-bottom: 4px; }
+.footer-credit-logos img {
+  width: auto;
+  height: 32px;
+  object-fit: contain;
+  object-position: center bottom;
+}
+.footer-credit-logos .footer-nas {
+  width: 58px;
+  transform: scale(1.42);
+  transform-origin: center bottom;
+}
 .footer-credit-logos .footer-habaq { width: 58px; }
 .footer-credit-logos .footer-afh { width: 104px; height: 38px; }
 
@@ -305,9 +320,9 @@ nav a,
 
   .partners-grid { grid-template-columns: 1fr; }
   .partner-item + .partner-item { border-inline-start: 0; border-top: 1px solid #000; }
-  .partner-item { min-height: 185px; }
-  .partner-logo-wrap, .producer-logos { height: 108px; }
-  .oros-partner-logo { transform: scale(2.15); }
+  .partner-item { min-height: 175px; }
+  .partner-logo-wrap, .producer-logos { height: 102px; }
+  .oros-partner-logo { transform: scale(2.15); transform-origin: center bottom; }
 
   .footer-expanded { align-items: flex-start; flex-direction: column; }
   .footer-credit-logos { justify-content: flex-start; }
@@ -337,11 +352,12 @@ nav a,
   .track-ready .track-copy { min-width: 0; }
   .training-audio { width: 100%; }
 
-  .partner-item { padding: 20px; }
+  .partner-item { padding: 18px 20px 14px; }
+  .partner-logo-wrap, .producer-logos { height: 96px; }
   .producer-logos { gap: 24px; }
   .oros-partner-logo { transform: scale(2); }
-  .nas-partner-logo { width: 88px; }
-  .habaq-partner-logo { width: 98px; }
+  .nas-partner-logo { width: 98px; height: 68px; transform: scale(1.42); }
+  .habaq-partner-logo { width: 98px; height: 68px; }
   .afh-logo { width: 160px; }
 
   .footer-oros-logo { width: 40px; height: 50px; transform: scale(1.9); }
@@ -349,6 +365,7 @@ nav a,
     display: grid;
     grid-template-columns: auto repeat(2, minmax(0, auto));
     justify-content: start;
+    align-items: end;
     gap: 10px 12px;
   }
   .footer-credit-logos > span:last-of-type { grid-column: 1; }
@@ -358,7 +375,7 @@ nav a,
   .hero-logo-frame { width: 80vw; padding: 30px; }
   .hero-logo-frame img { transform: scale(2.05); }
   .hero-facts { grid-template-columns: 1fr 1fr 1fr; }
-  .partner-logo-wrap, .producer-logos { height: 100px; }
+  .partner-logo-wrap, .producer-logos { height: 94px; }
   .producer-logos { gap: 16px; }
   .footer-credit-logos { grid-template-columns: 1fr 1fr; }
   .footer-credit-logos > span { grid-column: 1 / -1; }
