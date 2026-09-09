@@ -204,24 +204,23 @@ nav a,
   flex: 0 0 auto;
 }
 
-/* Optical normalization: source assets contain different amounts of internal whitespace. */
+/* Optical normalization for the three distinct logo shapes. */
 .oros-partner-logo {
   width: 138px;
   height: 112px;
   transform: scale(2.35);
   transform-origin: center bottom;
 }
-.nas-partner-logo {
-  width: 112px;
-  height: 72px;
-  transform: scale(1.48);
-  transform-origin: center bottom;
-}
+
+/* The refreshed Nas asset now matches Habaq's source height, so both use one CSS height with no scaling. */
+.nas-partner-logo,
 .habaq-partner-logo {
-  width: 112px;
+  width: auto;
   height: 72px;
+  transform: none;
   transform-origin: center bottom;
 }
+
 .afh-logo {
   width: 178px;
   height: 92px;
@@ -254,12 +253,12 @@ nav a,
   object-fit: contain;
   object-position: center bottom;
 }
-.footer-credit-logos .footer-nas {
-  width: 58px;
-  transform: scale(1.42);
-  transform-origin: center bottom;
+.footer-credit-logos .footer-nas,
+.footer-credit-logos .footer-habaq {
+  width: auto;
+  height: 32px;
+  transform: none;
 }
-.footer-credit-logos .footer-habaq { width: 58px; }
 .footer-credit-logos .footer-afh { width: 104px; height: 38px; }
 
 /* Avoid header crowding before mobile layout */
@@ -356,8 +355,12 @@ nav a,
   .partner-logo-wrap, .producer-logos { height: 96px; }
   .producer-logos { gap: 24px; }
   .oros-partner-logo { transform: scale(2); }
-  .nas-partner-logo { width: 98px; height: 68px; transform: scale(1.42); }
-  .habaq-partner-logo { width: 98px; height: 68px; }
+  .nas-partner-logo,
+  .habaq-partner-logo {
+    width: auto;
+    height: 68px;
+    transform: none;
+  }
   .afh-logo { width: 160px; }
 
   .footer-oros-logo { width: 40px; height: 50px; transform: scale(1.9); }
