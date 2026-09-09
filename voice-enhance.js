@@ -1,7 +1,7 @@
 (() => {
   const style = document.createElement('link');
   style.rel = 'stylesheet';
-  style.href = 'voice-enhance.css?v=safe2';
+  style.href = 'voice-enhance.css?v=4';
   document.head.appendChild(style);
 
   const VOICES = [
@@ -18,6 +18,12 @@
     'ديرتي': { base:'https://aswat.habaq.online/assets/audio/Deerty/', segments:[[0,18.7],[18.7,49.5],[49.5,66.85]] }
   };
 
+  const PRESETS = {
+    guide:   { user:120, choir:28, guide:18 },
+    balance: { user:130, choir:35, guide:6 },
+    test:    { user:145, choir:45, guide:0 }
+  };
+
   const nativeCreateObjectURL = URL.createObjectURL.bind(URL);
   const nativeRevokeObjectURL = URL.revokeObjectURL.bind(URL);
   const nativeGetUserMedia = navigator.mediaDevices?.getUserMedia?.bind(navigator.mediaDevices);
@@ -31,8 +37,6 @@
   let userGain = null;
   let userLimiter = null;
 
-  // Avoid aggressive voice processing that can cut sustained singing.
-  // These are hints; unsupported browsers may ignore them.
   if (nativeGetUserMedia) {
     navigator.mediaDevices.getUserMedia = (constraints = {}) => {
       const next = { ...constraints };
@@ -81,7 +85,7 @@
     backingAudios = [];
     if (rawAudio) { try { rawAudio.pause(); if (reset) rawAudio.currentTime = 0; } catch (_) {} }
     const solo = document.querySelector('#safeSoloPlay');
-    if (solo) solo.textContent = 'استمع إلى صوتك';
+    if (solo) solo.textContent = 'اسمع صوتي وحده';
   }
 
   function resetTake() {
@@ -99,7 +103,6 @@
   }
 
   function captureTake(url) {
-    // The choir coach creates this URL from the original MediaRecorder blob.
     rawUrl = url;
     rawAudio = new Audio(rawUrl);
     rawAudio.preload = 'metadata';
@@ -118,28 +121,56 @@
     panel.innerHTML = `
       <div class="safe-head">
         <div>
-          <span class="eyebrow">موازنة التسجيل</span>
-          <h4>نحافظ على تسجيلك كما هو</h4>
-          <p>لا حذف للضجيج ولا بوابة صوت ولا معالجة تغيّر الجمل. التعديل هنا يقتصر على مستوى التشغيل والموازنة مع الكورال.</p>
+          <span class="eyebrow">بعد التسجيل</span>
+          <h4>ضع صوتك داخل الكورال</h4>
+          <p>استمع إلى موقع صوتك، ثم اضبط العلاقة بينك وبين المجموعة بحسب ما تحتاجه في التدريب.</p>
         </div>
-        <span class="safe-badge">غير مدمّر</span>
+        <span class="safe-badge">موازنة مباشرة</span>
+      </div>
+      <div class="safe-presets" role="group" aria-label="أوضاع الاستماع">
+        <button type="button" data-safe-preset="guide">مع مرجع</button>
+        <button type="button" data-safe-preset="balance" class="active">داخل الكورال</button>
+        <button type="button" data-safe-preset="test">اختبار</button>
       </div>
       <div class="safe-controls">
-        <label><span>رفع مستوى صوتي</span><input id="safeUserGain" type="range" min="100" max="180" value="130" step="5"><output id="safeUserGainValue">130%</output></label>
-        <label><span>بقية الكورال</span><input id="safeChoirLevel" type="range" min="10" max="60" value="30" step="5"><output id="safeChoirLevelValue">30%</output></label>
-        <label><span>دوري الأصلي أثناء المقارنة</span><input id="safeGuideLevel" type="range" min="0" max="30" value="8" step="2"><output id="safeGuideLevelValue">8%</output></label>
+        <label><span>صوتي</span><input id="safeUserGain" type="range" min="100" max="180" value="130" step="5"><output id="safeUserGainValue">130%</output></label>
+        <label><span>المجموعة</span><input id="safeChoirLevel" type="range" min="10" max="60" value="35" step="5"><output id="safeChoirLevelValue">35%</output></label>
+        <label><span>الصوت المرجعي</span><input id="safeGuideLevel" type="range" min="0" max="30" value="6" step="2"><output id="safeGuideLevelValue">6%</output></label>
       </div>
       <div class="safe-actions">
-        <button type="button" class="training-action" id="safeSoloPlay">استمع إلى صوتك</button>
-        <p>عند المقارنة تُخفَّض طبقتك الأصلية تلقائياً، بينما تبقى بقية أصوات الكورال مرجعاً واضحاً.</p>
+        <button type="button" class="training-action" id="safeSoloPlay">اسمع صوتي وحده</button>
+        <p>ابدأ بمرجع واضح عند الحاجة، ثم خفّضه تدريجياً حتى تسمع مكانك داخل المجموعة.</p>
       </div>`;
     takePreview.insertAdjacentElement('afterend', panel);
     return panel;
   }
 
   function userGainValue() { return Number(document.querySelector('#safeUserGain')?.value ?? 130) / 100; }
-  function choirLevelValue() { return Number(document.querySelector('#safeChoirLevel')?.value ?? 30) / 100; }
-  function guideLevelValue() { return Number(document.querySelector('#safeGuideLevel')?.value ?? 8) / 100; }
+  function choirLevelValue() { return Number(document.querySelector('#safeChoirLevel')?.value ?? 35) / 100; }
+  function guideLevelValue() { return Number(document.querySelector('#safeGuideLevel')?.value ?? 6) / 100; }
+
+  function setControl(id, value) {
+    const input = document.querySelector(`#${id}`);
+    const output = document.querySelector(`#${id}Value`);
+    if (input) input.value = String(value);
+    if (output) output.textContent = `${value}%`;
+  }
+
+  function applyPreset(name) {
+    const preset = PRESETS[name];
+    if (!preset) return;
+    setControl('safeUserGain', preset.user);
+    setControl('safeChoirLevel', preset.choir);
+    setControl('safeGuideLevel', preset.guide);
+    document.querySelectorAll('[data-safe-preset]').forEach(button => {
+      button.classList.toggle('active', button.dataset.safePreset === name);
+    });
+    if (userGain) userGain.gain.value = userGainValue();
+  }
+
+  function clearPresetState() {
+    document.querySelectorAll('[data-safe-preset]').forEach(button => button.classList.remove('active'));
+  }
 
   function ensureUserGainGraph() {
     const Ctx = window.AudioContext || window.webkitAudioContext;
@@ -173,7 +204,7 @@
       }
       await rawAudio.play();
       if (button) button.textContent = 'إيقاف';
-      rawAudio.onended = () => { if (button) button.textContent = 'استمع إلى صوتك'; };
+      rawAudio.onended = () => { if (button) button.textContent = 'اسمع صوتي وحده'; };
     } catch (_) {}
   }
 
@@ -224,11 +255,16 @@
     } catch (_) {
       stopEverything(false);
       const status = detail()?.querySelector('#coachStatus');
-      if (status) status.textContent = 'تعذّر تشغيل الموازنة. حاول مرة أخرى.';
+      if (status) status.textContent = 'لم يبدأ الاستماع. جرّب مرة أخرى.';
     }
   }
 
   document.addEventListener('click', async event => {
+    const preset = event.target.closest('[data-safe-preset]');
+    if (preset) {
+      applyPreset(preset.dataset.safePreset);
+      return;
+    }
     if (event.target.closest('#safeSoloPlay')) {
       event.preventDefault();
       await playSolo();
@@ -251,6 +287,7 @@
     if (outputId) {
       const output = document.querySelector(`#${outputId}`);
       if (output) output.textContent = `${event.target.value}%`;
+      clearPresetState();
       if (event.target.id === 'safeUserGain' && userGain) userGain.gain.value = userGainValue();
     }
   }, true);
