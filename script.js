@@ -6,7 +6,7 @@ const songs = [
     voices: 6,
     duration: '1:05',
     status: 'متاحة للتدريب',
-    description: 'وصلة تراثية موزعة على ستة مسارات صوتية منفصلة للتعلّم والتدريب الجماعي.',
+    description: 'وصلة تراثية بستة مسارات صوتية للتعلّم والتدريب.',
     parts: [
       { name: 'سوبرانو', file: 'soprano.mp3' },
       { name: 'ألتو', file: 'alto.mp3' },
@@ -23,7 +23,7 @@ const songs = [
     subtitle: 'أغنية كورالية',
     voices: 6,
     status: 'متاحة للتدريب',
-    description: '«ديرتي» موزعة على ستة مسارات صوتية منفصلة لتسهيل التعلّم الفردي ثم العودة إلى الغناء الجماعي.',
+    description: 'أغنية كورالية بستة مسارات صوتية للتعلّم والتدريب.',
     parts: [
       { name: 'سوبرانو', file: 'soprano.mp3' },
       { name: 'ألتو', file: 'alto.mp3' },
@@ -65,7 +65,7 @@ function renderSongs() {
       </div>
       <p class="song-description">${song.description}</p>
       <div class="song-card-footer">
-        <button class="song-open" type="button" data-song="${song.id}">افتح مساحة التدريب</button>
+        <button class="song-open" type="button" data-song="${song.id}">افتح التدريب</button>
         <span class="song-readiness"><i></i> المسارات متاحة</span>
       </div>
     </article>
@@ -77,7 +77,7 @@ function buildTracks(song) {
     <div class="track track-ready">
       <span class="track-copy">
         <strong>${part.name}</strong>
-        <small>المسار ${index + 1} من ${song.parts.length} · استمع للدور ثم ردّده</small>
+        <small>المسار ${index + 1} من ${song.parts.length}</small>
       </span>
       <audio class="training-audio" controls preload="metadata" controlsList="nodownload" aria-label="مسار ${part.name} — ${song.title}">
         <source src="${song.audioBase}${part.file}" type="audio/mpeg" />
@@ -104,13 +104,9 @@ function openSong(song, trigger) {
     <p class="song-meta">${metaLine(song)}</p>
 
     <div class="training-block">
-      <h3>اختَر دورك واستمع</h3>
-      <p class="training-help">شغّل المسار الذي تريد تعلّمه. عند تشغيل مسار جديد سيتوقف المسار السابق تلقائياً.</p>
+      <h3>اختر دورك</h3>
+      <p class="training-help">شغّل المسار الذي تريد تعلّمه.</p>
       <div class="track-list">${buildTracks(song)}</div>
-    </div>
-
-    <div class="dialog-note">
-      استمع إلى المسار مرتين أو ثلاثاً، ثم غنِّ معه. بعد أن يثبت الدور في أذنك، جرّبه مع بقية الأصوات.
     </div>
   `;
 
