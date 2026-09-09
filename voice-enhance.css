@@ -1,106 +1,91 @@
-.enhance-panel {
+.safe-balance-panel {
   margin-top: 18px;
   border: 1px solid #000;
-  padding: clamp(18px, 3vw, 26px);
   background: #fff;
+  padding: clamp(18px, 3vw, 26px);
   display: grid;
-  gap: 16px;
+  gap: 18px;
 }
-.enhance-head {
+
+.safe-head {
   display: flex;
   justify-content: space-between;
-  gap: 18px;
   align-items: start;
+  gap: 18px;
 }
-.enhance-head h4 {
-  margin: 3px 0 4px;
+
+.safe-head h4 {
+  margin: 3px 0 6px;
   font-family: "Lifta", Tahoma, Arial, sans-serif;
   font-size: clamp(22px, 3vw, 30px);
 }
-.enhance-head p { margin: 0; color: var(--muted); font-size: 12px; }
-.enhance-badge {
+
+.safe-head p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.8;
+  max-width: 650px;
+}
+
+.safe-badge {
   border: 1px solid #000;
-  padding: 6px 9px;
+  padding: 6px 10px;
   font-size: 10px;
   white-space: nowrap;
 }
-.enhance-modes { display: flex; gap: 8px; }
-.enhance-modes button {
-  border: 1px solid #000;
-  background: #fff;
-  min-height: 36px;
-  padding: 0 14px;
-  font-family: "Lifta", Tahoma, Arial, sans-serif;
-  cursor: pointer;
-}
-.enhance-modes button.active { background: #000; color: #fff; }
-.enhance-modes button:disabled { opacity: .35; cursor: not-allowed; }
-.enhance-wave {
-  direction: ltr;
-  height: 72px;
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  padding: 8px 0;
-  border-block: 1px solid var(--line);
-}
-.enhance-wave i {
-  display: block;
-  flex: 1 1 0;
-  min-width: 1px;
-  height: var(--h, 10%);
-  background: #000;
-}
-.enhance-actions {
+
+.safe-controls {
   display: grid;
-  grid-template-columns: auto minmax(260px, 1fr);
-  align-items: center;
-  gap: 20px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
 }
-.enhance-balance { display: grid; gap: 6px; }
-.enhance-balance > label {
+
+.safe-controls label {
+  border: 1px solid var(--line);
+  padding: 13px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px 12px;
+  align-items: center;
+}
+
+.safe-controls label > span {
   font-family: "Lifta", Tahoma, Arial, sans-serif;
   font-size: 12px;
 }
-.enhance-balance > div {
-  display: grid;
-  grid-template-columns: auto minmax(120px, 1fr) auto;
-  align-items: center;
-  gap: 9px;
-  font-size: 10px;
-  color: var(--muted);
-}
-.enhance-balance input {
+
+.safe-controls input {
+  grid-column: 1 / -1;
   width: 100%;
   accent-color: #000;
 }
-.enhance-chain {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-.enhance-chain span {
-  border: 1px solid var(--line);
-  padding: 5px 8px;
-  font-size: 10px;
-}
-.enhance-metrics {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  border: 1px solid var(--line);
-}
-.enhance-metrics span { padding: 10px 12px; border-inline-start: 1px solid var(--line); }
-.enhance-metrics span:first-child { border-inline-start: 0; }
-.enhance-metrics small { display: block; color: var(--muted); font-size: 9px; margin-bottom: 3px; }
-.enhance-metrics strong { font-size: 12px; }
-.enhance-note { margin: 0; color: var(--muted); font-size: 10px; }
 
-@media (max-width: 620px) {
-  .enhance-head { display: grid; }
-  .enhance-badge { justify-self: start; }
-  .enhance-actions { grid-template-columns: 1fr; }
-  .enhance-actions .training-action { width: 100%; }
-  .enhance-metrics { grid-template-columns: 1fr; }
-  .enhance-metrics span { border-inline-start: 0; border-top: 1px solid var(--line); }
-  .enhance-metrics span:first-child { border-top: 0; }
+.safe-controls output {
+  font-size: 11px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.safe-actions {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 16px;
+  align-items: center;
+  padding-top: 2px;
+}
+
+.safe-actions p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+@media (max-width: 760px) {
+  .safe-head { display: grid; }
+  .safe-badge { justify-self: start; }
+  .safe-controls { grid-template-columns: 1fr; }
+  .safe-actions { grid-template-columns: 1fr; }
+  .safe-actions .training-action { width: 100%; }
 }
