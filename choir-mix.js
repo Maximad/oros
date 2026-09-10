@@ -41,12 +41,13 @@
 
   const css = document.createElement('link');
   css.rel = 'stylesheet';
-  css.href = 'voice-enhance.css?v=stable2';
+  css.href = 'voice-enhance.css?v=wizard1';
   document.head.appendChild(css);
 
   let song = null;
   let voiceIndex = null;
   let segmentIndex = 0;
+  let stepIndex = 1;
   let volume = 1;
   let mode = null;
   let monitor = null;
@@ -80,12 +81,41 @@
   function songLength() { return Math.max(0, songEnd() - songStart()); }
   function segmentStart(item = segment()) { return Math.max(item.start, songStart()); }
   function segmentEnd(item = segment()) { return Math.min(item.end, songEnd()); }
+  function segmentLength(item = segment()) { return Math.max(0, segmentEnd(item) - segmentStart(item)); }
   function relativeTime(absolute) { return Math.max(0, absolute - songStart()); }
   function peaks(key) { return window.OROS_WAVEFORMS?.[song?.id]?.[key] || []; }
 
-  function waveMarkup(values, id) {
-    if (!values?.length) return `<div class="coach-wave empty" id="${id}"></div>`;
-    return `<div class="coach-wave" id="${id}" role="slider" tabindex="0" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">${values.map(value => `<i style="--h:${Math.max(8, Math.round(value * 100))}%"></i>`).join('')}</div>`;
+  function slicePeaks(values, start, end, bins = 72) {
+    if (!values?.length || !song?.duration) return [];
+    const from = clamp(Math.floor((start / song.duration) * values.length), 0, values.length - 1);
+    const to = clamp(Math.ceil((end / song.duration) * values.length), from + 1, values.length);
+    const source = values.slice(from, to);
+    if (!source.length) return [];
+    const result = [];
+    for (let i = 0; i < bins; i++) {
+      const a = Math.floor((i * source.length) / bins);
+      const b = Math.max(a + 1, Math.floor(((i + 1) * source.length) / bins));
+      let peak = 0;
+      for (let j = a; j < Math.min(source.length, b); j++) peak = Math.max(peak, source[j]);
+      result.push(peak);
+    }
+    const max = Math.max(...result, 0.001);
+    return result.map(value => Math.pow(value / max, 0.82));
+  }
+
+  function trimmedVoicePeaks() {
+    const voice = selectedVoice();
+    return voice ? slicePeaks(peaks(voice.key), songStart(), songEnd(), 96) : [];
+  }
+
+  function currentSegmentPeaks() {
+    const voice = selectedVoice();
+    return voice ? slicePeaks(peaks(voice.key), segmentStart(), segmentEnd(), 64) : [];
+  }
+
+  function waveMarkup(values, id, extraClass = '') {
+    if (!values?.length) return `<div class="coach-wave empty ${extraClass}" id="${id}"></div>`;
+    return `<div class="coach-wave ${extraClass}" id="${id}" role="slider" tabindex="0" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">${values.map(value => `<i style="--h:${Math.max(8, Math.round(value * 100))}%"></i>`).join('')}</div>`;
   }
 
   function setWave(id, ratio) {
@@ -232,30 +262,80 @@
     if (compareButton) compareButton.disabled = true;
   }
 
-  function updateSummary() {
-    const summary = $('#coachSummary');
-    if (!summary) return;
+  function renderVoiceWave() {
+    const wrap = $('#coachWaveWrap');
+    if (wrap) wrap.innerHTML = waveMarkup(trimmedVoicePeaks(), 'coachVoiceWave');
+  }
+
+  function renderSegmentWaves() {
+    const values = currentSegmentPeaks();
+    const training = $('#coachSegmentWaveWrap');
+    const recording = $('#coachRecordWaveWrap');
+    if (training) training.innerHTML = waveMarkup(values, 'coachSegmentWave', 'segment-wave');
+    if (recording) recording.innerHTML = waveMarkup(values, 'coachRecordWave', 'record-wave');
+    const duration = fmt(segmentLength());
+    const trainingTime = $('#coachSegmentWaveTime');
+    const recordTime = $('#coachRecordWaveTime');
+    if (trainingTime) trainingTime.textContent = `0:00 / ${duration}`;
+    if (recordTime) recordTime.textContent = `0:00 / ${duration}`;
+  }
+
+  function updateContext() {
     const current = segment();
-    summary.innerHTML = `<span><strong>الصوت:</strong> ${selectedVoice()?.name || 'لم يُحدّد بعد'}</span><span><strong>المقطع:</strong> ${current.label}</span><span>${fmt(relativeTime(segmentStart(current)))} – ${fmt(relativeTime(segmentEnd(current)))}</span>`;
+    const voiceName = selectedVoice()?.name || 'لم يُحدّد بعد';
+    const range = `${fmt(relativeTime(segmentStart(current)))} – ${fmt(relativeTime(segmentEnd(current)))}`;
+    ['coachSummary', 'coachRecordSummary'].forEach(id => {
+      const node = $(`#${id}`);
+      if (node) node.innerHTML = `<span><strong>الصوت:</strong> ${voiceName}</span><span><strong>المقطع:</strong> ${current.label}</span><span>${range}</span>`;
+    });
+    ['coachSegmentInfo', 'coachRecordInfo'].forEach(id => {
+      const node = $(`#${id}`);
+      if (node) node.innerHTML = `<strong>${current.label}</strong><span>${range}</span>`;
+    });
+    ['coachLyrics', 'coachRecordLyrics'].forEach(id => {
+      const node = $(`#${id}`);
+      if (!node) return;
+      node.textContent = current.lyrics || 'الكلمات قيد الإضافة.';
+      node.classList.toggle('is-empty', !current.lyrics);
+    });
+    renderSegmentWaves();
   }
 
   function updateSegment() {
     stopAll(false);
     clearTake();
     $$('[data-coach-segment]').forEach(button => button.classList.toggle('active', Number(button.dataset.coachSegment) === segmentIndex));
-    const current = segment();
-    const info = $('#coachSegmentInfo');
-    if (info) info.innerHTML = `<strong>${current.label}</strong><span>${fmt(relativeTime(segmentStart(current)))} – ${fmt(relativeTime(segmentEnd(current)))}</span>`;
-    const lyrics = $('#coachLyrics');
-    if (lyrics) {
-      lyrics.textContent = current.lyrics || 'الكلمات قيد الإضافة.';
-      lyrics.classList.toggle('is-empty', !current.lyrics);
-    }
-    const next = $('#coachNext');
-    if (next) next.disabled = segmentIndex >= song.segments.length - 1;
+    const nextSegment = $('#coachNextSegment');
+    if (nextSegment) nextSegment.disabled = segmentIndex >= song.segments.length - 1;
     const status = $('#coachStatus');
-    if (status) status.textContent = voiceIndex === null ? 'اختر طبقتك أولاً.' : 'اسمع المقطع، ثم جرّب غناء دورك.';
-    updateSummary();
+    if (status) status.textContent = voiceIndex === null ? 'اختر طبقتك أولاً.' : 'جاهز للتسجيل.';
+    updateContext();
+  }
+
+  function updateStepAvailability() {
+    $$('[data-coach-step]').forEach(button => {
+      const target = Number(button.dataset.coachStep);
+      button.disabled = target > 1 && voiceIndex === null;
+      button.classList.toggle('active', target === stepIndex);
+      button.classList.toggle('complete', target < stepIndex && (target === 1 ? voiceIndex !== null : true));
+      button.setAttribute('aria-current', target === stepIndex ? 'step' : 'false');
+    });
+    const nextVoice = $('#coachVoiceNext');
+    if (nextVoice) nextVoice.disabled = voiceIndex === null;
+    const nextRecord = $('#coachTrainingNext');
+    if (nextRecord) nextRecord.disabled = voiceIndex === null;
+  }
+
+  function showStep(step, scroll = true) {
+    if (step > 1 && voiceIndex === null) return;
+    stepIndex = clamp(step, 1, 3);
+    stopAll(false);
+    $$('[data-step-panel]').forEach(panel => {
+      panel.hidden = Number(panel.dataset.stepPanel) !== stepIndex;
+    });
+    updateStepAvailability();
+    if (stepIndex === 2 || stepIndex === 3) updateContext();
+    if (scroll) detail.scrollTo?.({ top: 0, behavior: 'smooth' });
   }
 
   function selectVoice(index) {
@@ -270,14 +350,13 @@
     audio.volume = volume;
     $('#coachVoiceName').textContent = voice.name;
     $('#coachVoiceDesc').textContent = voice.desc;
-    $('#coachWaveWrap').innerHTML = waveMarkup(peaks(voice.key), 'coachVoiceWave');
     $('#coachVoiceTime').textContent = `0:00 / ${fmt(songLength())}`;
     $('#coachVoicePlay').disabled = false;
     $('#coachSegmentListen').disabled = false;
     $('#coachRecord').disabled = false;
-    const status = $('#coachStatus');
-    if (status) status.textContent = 'اسمع دور الطبقة، ثم انتقل إلى المقطع الذي تريد تدريبه.';
-    updateSummary();
+    renderVoiceWave();
+    updateContext();
+    updateStepAvailability();
   }
 
   function waitForAudio(audio, timeout = 3000) {
@@ -352,10 +431,7 @@
       $('#coachMixPlay .player-icon').textContent = '■';
       $('#coachMixPlay .all-label').textContent = 'إيقاف الكورال';
       monitorUntil(audio, songEnd());
-    } catch (_) {
-      const status = $('#coachStatus');
-      if (status) status.textContent = 'لم يبدأ التشغيل. جرّب مرة أخرى.';
-    }
+    } catch (_) {}
   }
 
   async function prepareVoiceSegment(forRecording) {
@@ -467,19 +543,19 @@
         takeAudio.preload = 'metadata';
         takeAudio.volume = volume;
         takeAudio.ontimeupdate = () => setWave('coachRecordedWave', takeAudio.duration ? takeAudio.currentTime / takeAudio.duration : 0);
-        $('#coachTakeWave').innerHTML = waveMarkup(normalizeMeter(meterValues), 'coachRecordedWave');
+        $('#coachTakeWave').innerHTML = waveMarkup(normalizeMeter(meterValues), 'coachRecordedWave', 'recorded-wave');
         $('#coachTakePreview').hidden = false;
         $('#coachMixPanel').hidden = false;
         $('#coachPlayTake').disabled = false;
         recordButton.textContent = 'سجّل من جديد';
         recordButton.classList.remove('recording');
-        if (status) status.textContent = 'المحاولة جاهزة. اسمع صوتك وحده أو ضعه داخل الكورال.';
+        if (status) status.textContent = 'المحاولة جاهزة.';
         stopMic();
       };
 
       recordButton.classList.add('recording');
       recordButton.textContent = 'استعد…';
-      if (status) status.textContent = 'استعد للدخول مع بداية المقطع.';
+      if (status) status.textContent = 'استعد للدخول.';
 
       const prepared = await prepareVoiceSegment(true);
       if (!prepared) throw new Error('guide unavailable');
@@ -535,7 +611,11 @@
       await takeAudio.play();
       mode = 'take-solo';
       $('#coachTakeSolo').textContent = 'إيقاف';
-      takeAudio.onended = () => { mode = null; $('#coachTakeSolo').textContent = 'اسمع صوتي وحده'; setWave('coachRecordedWave', 0); };
+      takeAudio.onended = () => {
+        mode = null;
+        $('#coachTakeSolo').textContent = 'اسمع صوتي وحده';
+        setWave('coachRecordedWave', 0);
+      };
     } catch (_) {}
   }
 
@@ -569,7 +649,7 @@
 
       mode = 'compare';
       $('#coachPlayTake').textContent = 'إيقاف';
-      if (status) status.textContent = comparisonUsingMinusOne ? 'اسمع موقع صوتك بين بقية الطبقات.' : 'اسمع المحاولة مع المجموعة.';
+      if (status) status.textContent = comparisonUsingMinusOne ? 'استمع إلى موقع صوتك بين بقية الطبقات.' : 'استمع إلى المحاولة مع المجموعة.';
       clearMonitor();
       monitor = setInterval(() => {
         if (!compareBacking || compareBacking.currentTime >= segmentEnd() || compareBacking.ended || takeAudio.ended) {
@@ -597,34 +677,84 @@
     if (!song) return;
     voiceIndex = null;
     segmentIndex = 0;
+    stepIndex = 1;
     clearTake();
 
-    detail.innerHTML = `<div class="coach-root" data-coach-root>
-      <header class="coach-head">
+    detail.innerHTML = `<div class="coach-root coach-wizard" data-coach-root>
+      <header class="coach-head coach-wizard-head">
         <div><p class="eyebrow">مساحة تدريب</p><h2 id="dialogTitle">${title}</h2><p class="song-meta">6 مسارات صوتية · ${fmt(songLength())}</p></div>
         <div class="coach-volume"><label>مستوى الصوت</label><input id="coachVolume" type="range" min="0" max="1" step=".01" value="${volume}"><output id="coachVolumeValue">${Math.round(volume * 100)}%</output></div>
       </header>
-      <section class="coach-choose">
-        <div class="coach-section-head"><div><p class="eyebrow">الخطوة الأولى</p><h3>اختر طبقتك</h3><p>استمع إلى الطبقات، واختر المجال الأقرب إلى صوتك.</p></div><button id="coachMixPlay" class="all-voices-button" type="button"><span class="player-icon">▶</span><span class="all-label">استمع إلى الكورال كاملاً</span></button></div>
+
+      <nav class="coach-stepper" aria-label="مراحل التدريب">
+        <button type="button" data-coach-step="1" class="active"><span>01</span><strong>اختيار الطبقة</strong></button>
+        <button type="button" data-coach-step="2" disabled><span>02</span><strong>التدريب</strong></button>
+        <button type="button" data-coach-step="3" disabled><span>03</span><strong>التسجيل</strong></button>
+      </nav>
+
+      <section class="coach-step-panel coach-choose" data-step-panel="1">
+        <div class="coach-page-intro">
+          <div><p class="eyebrow">01 · اعثر على دورك</p><h3>اختر طبقتك</h3><p>جرّب المسارات واحداً واحداً، واستقر على المجال الأقرب إلى صوتك.</p></div>
+          <button id="coachMixPlay" class="all-voices-button" type="button"><span class="player-icon">▶</span><span class="all-label">استمع إلى الكورال كاملاً</span></button>
+        </div>
         <div class="coach-voice-buttons">${VOICES.map((voice,index)=>`<button type="button" data-coach-voice="${index}">${voice.name}</button>`).join('')}</div>
-        <div class="coach-selected"><button id="coachVoicePlay" class="player-button" type="button" disabled>▶</button><div><strong id="coachVoiceName">اختر طبقتك</strong><p id="coachVoiceDesc">سيظهر هنا دور الطبقة ومسارها الصوتي.</p></div><div class="coach-timeline"><div id="coachWaveWrap"><div class="coach-wave empty"></div></div><span id="coachVoiceTime">0:00 / ${fmt(songLength())}</span></div></div>
-        <audio id="coachVoiceAudio" preload="auto"></audio><audio id="coachMixAudio" preload="auto" src="${song.base}all-voices.mp3"></audio>
+        <div class="coach-selected coach-selected-focus">
+          <button id="coachVoicePlay" class="player-button" type="button" disabled>▶</button>
+          <div><strong id="coachVoiceName">اختر طبقتك</strong><p id="coachVoiceDesc">سيظهر هنا دور الطبقة ومسارها الصوتي.</p></div>
+          <div class="coach-timeline"><div id="coachWaveWrap"><div class="coach-wave empty"></div></div><span id="coachVoiceTime">0:00 / ${fmt(songLength())}</span></div>
+        </div>
+        <div class="coach-step-nav single-next"><span></span><button id="coachVoiceNext" class="training-action primary coach-next-action" type="button" disabled>متابعة إلى التدريب ←</button></div>
       </section>
-      <section class="coach-practice">
-        <div class="coach-section-head"><div><p class="eyebrow">الخطوة الثانية</p><h3>درّب المقطع</h3><p>ثبّت دورك على جزء قصير، ثم جرّب وضع صوتك مكانه داخل المجموعة.</p></div><div class="coach-segments">${song.segments.map((item,index)=>`<button type="button" data-coach-segment="${index}" class="${index===0?'active':''}">${item.label}</button>`).join('')}</div></div>
+
+      <section class="coach-step-panel coach-practice coach-training-page" data-step-panel="2" hidden>
+        <div class="coach-page-intro">
+          <div><p class="eyebrow">02 · ثبّت الدور</p><h3>درّب المقطع</h3><p>اختر جزءاً قصيراً، واسمع دخولك وخروجك قبل الانتقال إلى التسجيل.</p></div>
+          <div class="coach-segments">${song.segments.map((item,index)=>`<button type="button" data-coach-segment="${index}" class="${index===0?'active':''}">${item.label}</button>`).join('')}</div>
+        </div>
         <div id="coachSummary" class="coach-summary"></div>
         <div class="coach-lyrics"><span>الكلمات</span><p id="coachLyrics" class="is-empty">الكلمات قيد الإضافة.</p></div>
-        <div id="coachSegmentInfo" class="segment-info"></div>
-        <div class="coach-flow">
-          <article><span>01</span><strong>اسمع الدور</strong><p>اسمع الجملة كاملة وركّز على الدخول والنهاية.</p><button id="coachSegmentListen" class="training-action" type="button" disabled>اسمع المقطع</button></article>
-          <article class="coach-record"><span>02</span><strong>غنِّه</strong><p>خذ العدّ، ثم ادخل مباشرة مع بداية المقطع.</p><button id="coachRecord" class="training-action primary" type="button" disabled>سجّل صوتك</button><div id="coachCount" class="coach-count" hidden></div></article>
-          <article><span>03</span><strong>اسمع موقعك</strong><p>ضع تسجيلك داخل التوزيع وقارن حضورك مع بقية الطبقات.</p><button id="coachPlayTake" class="training-action" type="button" disabled>اسمعني داخل الكورال</button></article>
+        <div class="coach-segment-stage">
+          <div class="segment-stage-head"><div id="coachSegmentInfo" class="segment-info"></div><span>مسار الدور</span></div>
+          <div class="coach-segment-timeline"><div id="coachSegmentWaveWrap"></div><span id="coachSegmentWaveTime">0:00</span></div>
+          <button id="coachSegmentListen" class="training-action primary" type="button" disabled>اسمع المقطع</button>
         </div>
-        <div id="coachTakePreview" class="coach-take" hidden><div><span class="eyebrow">تسجيلك</span><strong>المحاولة الحالية</strong></div><div id="coachTakeWave"></div><button id="coachTakeSolo" class="training-action" type="button">اسمع صوتي وحده</button></div>
-        <section id="coachMixPanel" class="safe-balance-panel" hidden><div class="safe-head"><div><span class="eyebrow">مكان صوتك</span><h4>داخل التوزيع</h4><p>ابدأ بصوتك واضحاً، ثم غيّر الموازنة حتى تسمع كيف يستقر الدور مع بقية الأصوات.</p></div></div><div class="safe-controls"><label><span>صوتي</span><input id="mixUserLevel" type="range" min="60" max="100" value="100" step="5"><output id="mixUserValue">100%</output></label><label><span>بقية الأصوات</span><input id="mixGroupLevel" type="range" min="10" max="70" value="40" step="5"><output id="mixGroupValue">40%</output></label><label><span>الدور المرجعي</span><input id="mixGuideLevel" type="range" min="0" max="30" value="0" step="5"><output id="mixGuideValue">0%</output></label></div><p class="enhance-note">يمكن إبقاء الدور المرجعي صامتاً، أو رفعه قليلاً عند الحاجة إلى دليل.</p></section>
-        <div class="coach-bottom"><p id="coachStatus">اختر طبقتك أولاً.</p><button id="coachNext" class="training-action" type="button">المقطع التالي</button></div>
-        <p class="segment-note">لأفضل تجربة، استخدم سماعات إن كانت متاحة. يبقى التسجيل على جهازك خلال الجلسة.</p>
+        <div class="coach-step-nav"><button class="training-action" type="button" data-go-step="1">→ اختيار الطبقة</button><div class="coach-nav-group"><button id="coachNextSegment" class="training-action" type="button">المقطع التالي</button><button id="coachTrainingNext" class="training-action primary coach-next-action" type="button" disabled>متابعة إلى التسجيل ←</button></div></div>
       </section>
+
+      <section class="coach-step-panel coach-practice coach-record-page" data-step-panel="3" hidden>
+        <div class="coach-page-intro record-intro">
+          <div><p class="eyebrow">03 · سجّل دورك</p><h3>غنِّ المقطع</h3><p>خذ العدّ، ثم ادخل مباشرة مع بداية المسار.</p></div>
+          <button class="training-action" type="button" data-go-step="2">تغيير المقطع</button>
+        </div>
+        <div id="coachRecordSummary" class="coach-summary"></div>
+        <div class="coach-lyrics compact-lyrics"><span>الكلمات</span><p id="coachRecordLyrics" class="is-empty">الكلمات قيد الإضافة.</p></div>
+
+        <div class="coach-record-stage">
+          <div class="record-stage-top"><div><span class="eyebrow">المسار</span><div id="coachRecordInfo" class="segment-info"></div></div><span class="record-ready">جاهز</span></div>
+          <div class="coach-record-timeline"><div id="coachRecordWaveWrap"></div><span id="coachRecordWaveTime">0:00</span></div>
+          <div class="record-action-row">
+            <button id="coachRecord" class="training-action primary record-main-button" type="button" disabled>سجّل صوتك</button>
+            <p id="coachStatus">جاهز للتسجيل.</p>
+          </div>
+          <div id="coachCount" class="coach-count" hidden></div>
+        </div>
+
+        <div id="coachTakePreview" class="coach-take coach-take-result" hidden>
+          <div><span class="eyebrow">تسجيلك</span><strong>المحاولة الحالية</strong></div>
+          <div id="coachTakeWave"></div>
+          <div class="take-actions"><button id="coachTakeSolo" class="training-action" type="button">اسمع صوتي وحده</button><button id="coachPlayTake" class="training-action primary" type="button" disabled>اسمعني داخل الكورال</button></div>
+        </div>
+
+        <section id="coachMixPanel" class="safe-balance-panel" hidden>
+          <div class="safe-head"><div><span class="eyebrow">مكان صوتك</span><h4>داخل التوزيع</h4><p>اضبط حضور صوتك والمجموعة، وارفع الدور المرجعي فقط عندما تحتاج إليه.</p></div></div>
+          <div class="safe-controls"><label><span>صوتي</span><input id="mixUserLevel" type="range" min="60" max="100" value="100" step="5"><output id="mixUserValue">100%</output></label><label><span>بقية الأصوات</span><input id="mixGroupLevel" type="range" min="10" max="70" value="40" step="5"><output id="mixGroupValue">40%</output></label><label><span>الدور المرجعي</span><input id="mixGuideLevel" type="range" min="0" max="30" value="0" step="5"><output id="mixGuideValue">0%</output></label></div>
+        </section>
+
+        <div class="coach-step-nav record-bottom-nav"><button class="training-action" type="button" data-go-step="2">→ العودة إلى التدريب</button><p class="segment-note">يبقى التسجيل على جهازك خلال الجلسة.</p></div>
+      </section>
+
+      <audio id="coachVoiceAudio" preload="auto"></audio>
+      <audio id="coachMixAudio" preload="auto" src="${song.base}all-voices.mp3"></audio>
     </div>`;
 
     const voice = voiceAudio();
@@ -633,26 +763,46 @@
     voice.ontimeupdate = () => {
       const position = clamp(relativeTime(voice.currentTime), 0, songLength());
       setWave('coachVoiceWave', songLength() ? position / songLength() : 0);
-      const time = $('#coachVoiceTime');
-      if (time) time.textContent = `${fmt(position)} / ${fmt(songLength())}`;
+      const voiceTime = $('#coachVoiceTime');
+      if (voiceTime) voiceTime.textContent = `${fmt(position)} / ${fmt(songLength())}`;
+
+      const segPosition = clamp(voice.currentTime - segmentStart(), 0, segmentLength());
+      const segRatio = segmentLength() ? segPosition / segmentLength() : 0;
+      setWave('coachSegmentWave', segRatio);
+      setWave('coachRecordWave', segRatio);
+      const segmentTime = $('#coachSegmentWaveTime');
+      const recordTime = $('#coachRecordWaveTime');
+      const display = `${fmt(segPosition)} / ${fmt(segmentLength())}`;
+      if (segmentTime) segmentTime.textContent = display;
+      if (recordTime) recordTime.textContent = display;
     };
     voice.onended = () => { mode = null; resetButtons(); };
     mix.onended = () => { mode = null; resetButtons(); };
-    updateSegment();
+    updateContext();
+    updateStepAvailability();
+    showStep(1, false);
   }
 
   detail.addEventListener('click', async event => {
+    const stepButton = event.target.closest('[data-coach-step]');
+    if (stepButton) { showStep(Number(stepButton.dataset.coachStep)); return; }
+    const goStep = event.target.closest('[data-go-step]');
+    if (goStep) { showStep(Number(goStep.dataset.goStep)); return; }
+    if (event.target.closest('#coachVoiceNext')) { showStep(2); return; }
+    if (event.target.closest('#coachTrainingNext')) { showStep(3); return; }
+
     const voiceButton = event.target.closest('[data-coach-voice]');
     if (voiceButton) { selectVoice(Number(voiceButton.dataset.coachVoice)); return; }
     const segmentButton = event.target.closest('[data-coach-segment]');
     if (segmentButton) { segmentIndex = Number(segmentButton.dataset.coachSegment); updateSegment(); return; }
+
     if (event.target.closest('#coachVoicePlay')) { await playVoiceFull(); return; }
     if (event.target.closest('#coachMixPlay')) { await playMixFull(); return; }
     if (event.target.closest('#coachSegmentListen')) { if (mode === 'segment') stopAll(false); else await playVoiceSegment(false); return; }
     if (event.target.closest('#coachRecord')) { await recordTake(); return; }
     if (event.target.closest('#coachTakeSolo')) { await playTakeSolo(); return; }
     if (event.target.closest('#coachPlayTake')) { await playComparison(); return; }
-    if (event.target.closest('#coachNext') && segmentIndex < song.segments.length - 1) { segmentIndex += 1; updateSegment(); }
+    if (event.target.closest('#coachNextSegment') && segmentIndex < song.segments.length - 1) { segmentIndex += 1; updateSegment(); }
   });
 
   detail.addEventListener('input', event => {
@@ -661,11 +811,19 @@
   });
 
   detail.addEventListener('pointerdown', event => {
-    const wave = event.target.closest('#coachVoiceWave');
-    if (!wave || voiceIndex === null) return;
-    const rect = wave.getBoundingClientRect();
-    const ratio = clamp((event.clientX - rect.left) / rect.width, 0, 1);
-    voiceAudio().currentTime = songStart() + songLength() * ratio;
+    const fullWave = event.target.closest('#coachVoiceWave');
+    if (fullWave && voiceIndex !== null) {
+      const rect = fullWave.getBoundingClientRect();
+      const ratio = clamp((event.clientX - rect.left) / rect.width, 0, 1);
+      voiceAudio().currentTime = songStart() + songLength() * ratio;
+      return;
+    }
+    const segmentWave = event.target.closest('#coachSegmentWave');
+    if (segmentWave && voiceIndex !== null) {
+      const rect = segmentWave.getBoundingClientRect();
+      const ratio = clamp((event.clientX - rect.left) / rect.width, 0, 1);
+      voiceAudio().currentTime = segmentStart() + segmentLength() * ratio;
+    }
   });
 
   dialog.addEventListener('close', () => { stopAll(true); stopMeter(); stopMic(); clearTake(); });
@@ -680,5 +838,11 @@
 
   const waveformScript = document.createElement('script');
   waveformScript.src = 'waveforms.js?v=stable2';
+  waveformScript.onload = () => {
+    if (selectedVoice()) {
+      renderVoiceWave();
+      renderSegmentWaves();
+    }
+  };
   document.head.appendChild(waveformScript);
 })();
