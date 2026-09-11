@@ -1,0 +1,257 @@
+/* Saved recordings: lightweight archive + recording save flow */
+.recordings-section {
+  background: #f4f4f4;
+  border-top: 1px solid #000;
+  border-bottom: 1px solid #000;
+}
+
+.recordings-head-action {
+  align-self: flex-end;
+  margin-bottom: 8px;
+}
+
+.recordings-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1px solid #000;
+  border-inline-start: 1px solid #000;
+}
+
+.recording-card {
+  min-height: 210px;
+  padding: 22px;
+  border-inline-end: 1px solid #000;
+  border-bottom: 1px solid #000;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 28px;
+}
+
+.recording-card-top {
+  display: grid;
+  gap: 8px;
+}
+
+.recording-card .recording-kicker,
+.recording-card time {
+  color: #6b6b6b;
+  font-size: 11px;
+}
+
+.recording-card strong {
+  font-family: "Lifta", Tahoma, Arial, sans-serif;
+  font-size: 23px;
+  line-height: 1.2;
+}
+
+.recording-card p {
+  margin: 0;
+  color: #555;
+  font-size: 13px;
+}
+
+.recording-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border-top: 1px solid #ddd;
+  padding-top: 16px;
+}
+
+.recording-play {
+  min-width: 112px;
+  min-height: 42px;
+  border: 1px solid #000;
+  background: #000;
+  color: #fff;
+  padding: 9px 14px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+}
+
+.recording-play.is-playing {
+  background: #fff;
+  color: #000;
+}
+
+.recordings-state {
+  margin: 20px 0 0;
+  color: #666;
+  font-size: 13px;
+}
+
+.recordings-state:empty { display: none; }
+
+/* Save current take */
+.save-take-panel {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #000;
+  display: grid;
+  gap: 16px;
+}
+
+.save-take-intro {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.save-take-copy {
+  display: grid;
+  gap: 4px;
+}
+
+.save-take-copy strong {
+  font-family: "Lifta", Tahoma, Arial, sans-serif;
+  font-size: 21px;
+}
+
+.save-take-copy p {
+  margin: 0;
+  color: #666;
+  font-size: 12px;
+}
+
+.save-take-form {
+  border: 1px solid #000;
+  background: #f5f5f5;
+  padding: 18px;
+  display: grid;
+  gap: 16px;
+}
+
+.save-take-form[hidden] { display: none !important; }
+
+.save-name-field {
+  display: grid;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.save-name-field input {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid #000;
+  border-radius: 0;
+  background: #fff;
+  color: #000;
+  padding: 9px 11px;
+  font: inherit;
+}
+
+.save-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.save-consent input {
+  margin-top: 4px;
+  accent-color: #000;
+}
+
+.save-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.save-take-status {
+  margin: 0;
+  min-height: 18px;
+  color: #555;
+  font-size: 12px;
+}
+
+.save-take-status.success { color: #111; font-weight: 800; }
+.save-take-status.error { color: #8a1b1b; }
+
+/* Archive page */
+.recordings-page-main {
+  min-height: calc(100vh - 150px);
+}
+
+.recordings-page-hero {
+  padding: 84px 0 54px;
+  border-bottom: 1px solid #000;
+}
+
+.recordings-page-hero h1 {
+  margin: 8px 0 16px;
+  font-size: clamp(52px, 7vw, 96px);
+  line-height: .98;
+}
+
+.recordings-page-hero p:last-child {
+  max-width: 680px;
+  color: #555;
+}
+
+.recordings-toolbar {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 12px;
+  margin-bottom: 26px;
+}
+
+.recordings-toolbar label {
+  display: grid;
+  gap: 6px;
+  color: #555;
+  font-size: 11px;
+}
+
+.recordings-toolbar select {
+  min-height: 44px;
+  border: 1px solid #000;
+  border-radius: 0;
+  background: #fff;
+  padding: 8px 10px;
+  font: inherit;
+}
+
+.recordings-toolbar button {
+  align-self: end;
+}
+
+.recordings-pagination {
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.recordings-pagination button {
+  min-width: 110px;
+}
+
+.recordings-pagination span {
+  min-width: 72px;
+  text-align: center;
+  color: #555;
+  font-size: 12px;
+}
+
+@media (max-width: 900px) {
+  .recordings-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 640px) {
+  .recordings-grid { grid-template-columns: 1fr; }
+  .recording-card { min-height: 178px; padding: 18px; }
+  .save-take-intro { align-items: stretch; flex-direction: column; }
+  .save-take-intro .training-action { width: 100%; }
+  .recordings-page-hero { padding: 54px 0 38px; }
+  .recordings-toolbar { grid-template-columns: 1fr; }
+  .recordings-toolbar button { width: 100%; }
+}
