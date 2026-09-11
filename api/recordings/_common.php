@@ -33,7 +33,7 @@ function recordings_ensure_storage(): void {
     }
 }
 
-function recordings_json(array $payload, int $status = 200): never {
+function recordings_json(array $payload, int $status = 200): void {
     http_response_code($status);
     header('Content-Type: application/json; charset=utf-8');
     header('Cache-Control: no-store, max-age=0');
@@ -41,7 +41,7 @@ function recordings_json(array $payload, int $status = 200): never {
     exit;
 }
 
-function recordings_text(mixed $value, int $max = 120): string {
+function recordings_text($value, int $max = 120): string {
     $text = trim((string)$value);
     $text = preg_replace('/[\x00-\x1F\x7F]/u', ' ', $text) ?? '';
     $text = preg_replace('/\s+/u', ' ', $text) ?? '';
@@ -80,7 +80,9 @@ function recordings_rate_limit(): void {
         $decoded = is_string($raw) ? json_decode($raw, true) : null;
         if (is_array($decoded)) $events = $decoded;
     }
-    $events = array_values(array_filter($events, fn($ts) => is_numeric($ts) && (int)$ts > $now - RECORDING_RATE_WINDOW));
+    $events = array_values(array_filter($events, function ($ts) use ($now) {
+        return is_numeric($ts) && (int)$ts > $now - RECORDING_RATE_WINDOW;
+    }));
     if (count($events) >= RECORDING_RATE_LIMIT) {
         recordings_json(['ok' => false, 'error' => 'rate_limited'], 429);
     }
