@@ -58,7 +58,7 @@ $duration = (float)($_POST['duration'] ?? 0);
 $duration = max(0, min(180, $duration));
 
 $allowedSongs = ['وصلة تراثية', 'ديرتي'];
-$allowedVoices = ['سوبرانو', 'ألتو', 'كاونتر تينور', 'تينور', 'باس', 'دوبل باس'];
+$allowedVoices = ['سوبرانو', 'ألتو', 'تينور', 'باس'];
 if (!in_array($song, $allowedSongs, true) || !in_array($voice, $allowedVoices, true)) {
     recordings_json(['ok' => false, 'error' => 'invalid_context'], 400);
 }
