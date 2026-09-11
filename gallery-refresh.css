@@ -292,6 +292,118 @@ footer .footer-credit-logos .footer-afh {
   .coach-stepper button strong { font-size: 9px !important; }
 }
 
+/* Balanced production/support marks.
+   Equal cards + a shared visual logo zone, with optical sizing per mark. */
+.partners-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  align-items: stretch;
+}
+
+.partner-item {
+  min-height: 270px !important;
+  padding: 24px 24px 22px !important;
+  justify-content: flex-start !important;
+  gap: 18px !important;
+}
+
+.partner-role {
+  display: block;
+  min-height: 34px;
+  line-height: 1.55;
+  text-align: center;
+}
+
+.partner-logo-wrap,
+.producer-logos {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 160px !important;
+  height: 160px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 28px !important;
+  overflow: hidden !important;
+}
+
+.partner-logo {
+  display: block !important;
+  width: auto !important;
+  max-width: 78% !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  transform: none !important;
+  margin: 0 !important;
+}
+
+.oros-partner-logo {
+  width: auto !important;
+  height: 124px !important;
+  max-width: 42% !important;
+  transform: none !important;
+}
+
+.nas-partner-logo,
+.habaq-partner-logo {
+  width: auto !important;
+  height: 48px !important;
+  max-width: 38% !important;
+  transform: none !important;
+}
+
+.afh-logo {
+  width: auto !important;
+  height: 88px !important;
+  max-width: 68% !important;
+  transform: none !important;
+}
+
+@media (max-width: 900px) {
+  .partners-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .partner-item {
+    min-height: 210px !important;
+  }
+
+  .partner-logo-wrap,
+  .producer-logos {
+    min-height: 132px !important;
+    height: 132px !important;
+  }
+
+  .oros-partner-logo { height: 110px !important; }
+  .nas-partner-logo,
+  .habaq-partner-logo { height: 44px !important; }
+  .afh-logo { height: 80px !important; }
+}
+
+@media (max-width: 640px) {
+  .partner-item {
+    min-height: 190px !important;
+    padding: 18px 18px 16px !important;
+  }
+
+  .partner-role {
+    min-height: 28px;
+    font-size: 10px !important;
+  }
+
+  .partner-logo-wrap,
+  .producer-logos {
+    min-height: 116px !important;
+    height: 116px !important;
+    gap: 18px !important;
+  }
+
+  .oros-partner-logo { height: 96px !important; }
+  .nas-partner-logo,
+  .habaq-partner-logo { height: 38px !important; }
+  .afh-logo { height: 70px !important; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .choir-note-card img { transition: none; }
 }
