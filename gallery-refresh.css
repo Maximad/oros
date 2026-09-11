@@ -81,6 +81,95 @@
   }
 }
 
+/* Mobile training layout guard.
+   Some Android browsers stretch the wizard grid rows inside <dialog>.
+   Keep the step navigation compact and let the active page flow naturally. */
+@media (max-width: 760px) {
+  .song-dialog[open] {
+    display: block !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+
+  .song-dialog #songDetail {
+    height: auto !important;
+    min-height: 0 !important;
+  }
+
+  .coach-root.coach-wizard {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    align-content: flex-start !important;
+    height: auto !important;
+    min-height: 0 !important;
+  }
+
+  .coach-wizard-head,
+  .coach-stepper,
+  .coach-step-panel {
+    flex: 0 0 auto !important;
+    align-self: stretch !important;
+    height: auto !important;
+    min-height: 0 !important;
+  }
+
+  .coach-stepper {
+    position: relative !important;
+    top: auto !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    grid-auto-rows: 54px !important;
+    align-items: stretch !important;
+    margin: 0 !important;
+  }
+
+  .coach-stepper button {
+    height: 54px !important;
+    min-height: 54px !important;
+    max-height: 54px !important;
+    padding: 6px 4px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 1px !important;
+    line-height: 1.2 !important;
+  }
+
+  .coach-stepper button span,
+  .coach-stepper button strong {
+    display: block !important;
+    margin: 0 !important;
+    line-height: 1.2 !important;
+  }
+
+  .coach-stepper button span { font-size: 9px !important; }
+  .coach-stepper button strong { font-size: 10px !important; }
+
+  .coach-step-panel:not([hidden]) {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .coach-step-panel[hidden] {
+    display: none !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .coach-stepper {
+    grid-auto-rows: 50px !important;
+  }
+  .coach-stepper button {
+    height: 50px !important;
+    min-height: 50px !important;
+    max-height: 50px !important;
+  }
+  .coach-stepper button strong { font-size: 9px !important; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .choir-note-card img { transition: none; }
 }
