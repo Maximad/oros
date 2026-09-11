@@ -3,6 +3,89 @@
   object-position: center top;
 }
 
+/* Simplified site structure: these ideas are already part of the training flow. */
+#voices,
+#contribute,
+#mainNav a[href="#voices"],
+#mainNav a[href="#contribute"] {
+  display: none !important;
+}
+
+/* Persistent production/support strip. Keep it compact so it never obscures content. */
+body {
+  padding-bottom: 78px;
+}
+
+footer {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 45;
+  padding: 8px 0 !important;
+  background: rgba(255, 255, 255, .97) !important;
+  border-top: 1px solid #000 !important;
+  box-shadow: 0 -6px 24px rgba(0, 0, 0, .06);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+footer .footer-inner.footer-expanded {
+  min-height: 52px;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 18px !important;
+}
+
+footer .footer-brand {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 14px !important;
+  flex: 0 0 auto;
+}
+
+footer .footer-oros-logo {
+  width: 36px !important;
+  height: 42px !important;
+  margin-inline: 6px !important;
+  transform: scale(1.7) !important;
+}
+
+footer .footer-brand > span {
+  font-size: 12px !important;
+  white-space: nowrap;
+}
+
+footer .footer-credit-logos {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  flex-wrap: nowrap !important;
+  gap: 10px !important;
+  min-width: 0;
+}
+
+footer .footer-credit-logos > span {
+  padding: 0 !important;
+  white-space: nowrap;
+}
+
+footer .footer-credit-logos img,
+footer .footer-credit-logos .footer-nas,
+footer .footer-credit-logos .footer-habaq {
+  width: auto !important;
+  height: 27px !important;
+  flex: 0 0 auto;
+}
+
+footer .footer-credit-logos .footer-afh {
+  width: auto !important;
+  height: 31px !important;
+}
+
 .choir-notes-section {
   background: #fff;
   border-top: 1px solid #000;
@@ -63,9 +146,18 @@
     grid-column: 1 / -1;
     min-height: 360px;
   }
+
+  footer .footer-brand > span,
+  footer .footer-credit-logos > span {
+    display: none !important;
+  }
 }
 
 @media (max-width: 640px) {
+  body {
+    padding-bottom: 62px;
+  }
+
   .choir-notes-grid {
     grid-template-columns: 1fr;
     grid-auto-rows: auto;
@@ -78,6 +170,36 @@
     grid-row: auto;
     min-height: 0;
     aspect-ratio: 4 / 3;
+  }
+
+  footer {
+    padding: 5px 0 !important;
+  }
+
+  footer .footer-inner.footer-expanded {
+    min-height: 48px;
+    gap: 8px !important;
+  }
+
+  footer .footer-oros-logo {
+    width: 30px !important;
+    height: 34px !important;
+    margin-inline: 4px !important;
+    transform: scale(1.55) !important;
+  }
+
+  footer .footer-credit-logos {
+    gap: 7px !important;
+  }
+
+  footer .footer-credit-logos img,
+  footer .footer-credit-logos .footer-nas,
+  footer .footer-credit-logos .footer-habaq {
+    height: 22px !important;
+  }
+
+  footer .footer-credit-logos .footer-afh {
+    height: 26px !important;
   }
 }
 
