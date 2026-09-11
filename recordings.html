@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#ffffff" />
+  <meta name="description" content="التسجيلات المحفوظة ضمن مشروع أصواتنا سوا لجوقة Óros." />
+  <title>التسجيلات | أصواتنا سوا</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="enhancements.css" />
+  <link rel="stylesheet" href="gallery-refresh.css?v=2" />
+  <link rel="stylesheet" href="recordings.css?v=1" />
+</head>
+<body>
+  <a class="skip-link" href="#main">تجاوز إلى المحتوى</a>
+
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="index.html#top" aria-label="أصواتنا سوا — الصفحة الرئيسية">
+        <img class="brand-logo" src="https://aswat.habaq.online/assets/images/logo/oros-logo" alt="Óros" />
+        <span class="brand-copy">
+          <strong>أصواتنا سوا</strong>
+          <small>Óros · إنتاج حبق ناس</small>
+        </span>
+      </a>
+
+      <button class="nav-toggle" id="navToggle" type="button" aria-expanded="false" aria-controls="mainNav" aria-label="فتح القائمة">
+        <span></span><span></span>
+      </button>
+
+      <nav id="mainNav" aria-label="التنقل الرئيسي">
+        <a href="index.html#songs">الأغاني</a>
+        <a href="index.html#how">طريقة الاستخدام</a>
+        <a href="index.html#recordings">أحدث التسجيلات</a>
+        <a href="index.html#gallery">صور المشروع</a>
+        <a href="index.html#about">عن المشروع</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="recordings-page-main" data-recordings-page>
+    <section class="recordings-page-hero">
+      <div class="wrap">
+        <p class="eyebrow">التسجيلات المحفوظة</p>
+        <h1>أصوات من جلسات التدريب.</h1>
+        <p>تسجيلات اختار أصحابها الاحتفاظ بها ضمن المشروع. يمكنك الاستماع بحسب الأغنية أو الطبقة من دون تحميل التسجيلات كلها دفعة واحدة.</p>
+      </div>
+    </section>
+
+    <section class="section recordings-archive">
+      <div class="wrap">
+        <form class="recordings-toolbar" id="recordingsFilterForm">
+          <label>
+            <span>الأغنية</span>
+            <select id="recordingSongFilter">
+              <option value="">كل الأغاني</option>
+              <option value="وصلة تراثية">وصلة تراثية</option>
+              <option value="ديرتي">ديرتي</option>
+            </select>
+          </label>
+          <label>
+            <span>الطبقة</span>
+            <select id="recordingVoiceFilter">
+              <option value="">كل الطبقات</option>
+              <option value="سوبرانو">سوبرانو</option>
+              <option value="ألتو">ألتو</option>
+              <option value="كاونتر تينور">كاونتر تينور</option>
+              <option value="تينور">تينور</option>
+              <option value="باس">باس</option>
+              <option value="دوبل باس">دوبل باس</option>
+            </select>
+          </label>
+          <button class="button primary" type="submit">تصفية</button>
+        </form>
+
+        <div class="recordings-grid" id="recordingsArchive" aria-live="polite"></div>
+        <p class="recordings-state" id="recordingsArchiveState"></p>
+
+        <div class="recordings-pagination" aria-label="صفحات التسجيلات">
+          <button class="button outline" id="recordingsPrev" type="button">السابق</button>
+          <span id="recordingsPageLabel">1 / 1</span>
+          <button class="button outline" id="recordingsNext" type="button">التالي</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap footer-inner footer-expanded">
+      <a class="footer-brand" href="index.html#top">
+        <img class="footer-oros-logo" src="https://aswat.habaq.online/assets/images/logo/oros-logo" alt="Óros" />
+        <span>أصواتنا سوا</span>
+      </a>
+      <div class="footer-credit-logos" aria-label="الإنتاج والدعم">
+        <span>إنتاج</span>
+        <img class="footer-nas" src="https://aswat.habaq.online/assets/images/logo/nas-logo" alt="حبق ناس" />
+        <img class="footer-habaq" src="https://aswat.habaq.online/assets/images/logo/habaq-logo" alt="حبق" />
+        <span>بدعم من</span>
+        <img class="footer-afh" src="https://aswat.habaq.online/assets/images/logo/afh-logo" alt="Action for Hope" />
+      </div>
+    </div>
+  </footer>
+
+  <script src="recordings.js?v=1"></script>
+  <script>
+    (() => {
+      const toggle = document.querySelector('#navToggle');
+      const nav = document.querySelector('#mainNav');
+      if (!toggle || !nav) return;
+      const close = () => {
+        nav.classList.remove('open');
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.setAttribute('aria-label', 'فتح القائمة');
+        document.body.classList.remove('nav-open');
+      };
+      toggle.addEventListener('click', () => {
+        const open = toggle.getAttribute('aria-expanded') !== 'true';
+        nav.classList.toggle('open', open);
+        toggle.setAttribute('aria-expanded', String(open));
+        toggle.setAttribute('aria-label', open ? 'إغلاق القائمة' : 'فتح القائمة');
+        document.body.classList.toggle('nav-open', open);
+      });
+      nav.addEventListener('click', event => { if (event.target.closest('a')) close(); });
+      window.addEventListener('resize', () => { if (window.innerWidth > 900) close(); });
+    })();
+  </script>
+</body>
+</html>
