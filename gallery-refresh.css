@@ -406,3 +406,31 @@ footer .footer-credit-logos .footer-afh {
 @media (prefers-reduced-motion: reduce) {
   .choir-note-card img { transition: none; }
 }
+
+/* Typography refinements */
+.eyebrow {
+  font-size: 14px !important;
+  letter-spacing: .15em !important;
+}
+
+.partner-role {
+  color: var(--muted);
+  font-size: 14px !important;
+}
+
+@media (max-width: 1120px) {
+  nav a {
+    font-size: 14px !important;
+  }
+}
+
+footer .footer-brand > span {
+  font-size: 14px !important;
+  white-space: nowrap;
+}
+
+.brand-copy strong {
+  font-size: 20px !important;
+  line-height: 1.2;
+  letter-spacing: -.01em;
+}
