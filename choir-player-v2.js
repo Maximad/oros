@@ -3,7 +3,7 @@
   const detail = document.querySelector('#songDetail'), dialog = document.querySelector('#songDialog');
   if (!data || !detail || !dialog) return;
   const { VOICES, SONGS } = data;
-  const css = document.createElement('link'); css.rel='stylesheet'; css.href='voice-enhance.css?v=voice3'; document.head.appendChild(css);
+  const css = document.createElement('link'); css.rel='stylesheet'; css.href='voice-enhance.css?v=timing1'; document.head.appendChild(css);
 
   let song, voiceIndex=null, segmentIndex=0, step=1, volume=1, mode=null, timer=null;
   let recorder=null, mic=null, chunks=[], takeUrl=null, takeAudio=null, meterCtx=null, meterTimer=null, meter=[];
@@ -15,7 +15,7 @@
   const segments=()=>selectedVoice()?(song.segmentsByVoice[selectedVoice().key]||[]):[];
   const seg=()=>segments()[segmentIndex]||null;
   const songStart=()=>song.trimStart, songEnd=()=>song.trimEnd, songLength=()=>songEnd()-songStart();
-  const segStart=()=>songStart()+(seg()?.start||0), segEnd=()=>Math.min(songStart()+(seg()?.end||songLength()),songEnd()), segLength=()=>Math.max(0,segEnd()-segStart());
+  const segStart=()=>clamp(seg()?.start ?? songStart(),0,song.duration), segEnd=()=>clamp(seg()?.end ?? songEnd(),segStart(),song.duration), segLength=()=>Math.max(0,segEnd()-segStart());
   const voiceAudio=()=>$('#coachVoiceAudio'), mixAudio=()=>$('#coachMixAudio');
   const peaks=k=>window.OROS_WAVEFORMS?.[song.id]?.[k]||[];
 
@@ -74,7 +74,7 @@
   function build(title){
     song=SONGS[title]; if(!song)return; voiceIndex=null;segmentIndex=0;step=1;clearTake();
     detail.innerHTML=`<div class="coach-root coach-wizard" data-coach-root>
-      <header class="coach-head coach-wizard-head"><div><p class="eyebrow">مساحة التدريب</p><h2 id="dialogTitle">${title}</h2><p class="song-meta">6 مسارات صوتية · ${fmt(songLength())}</p></div><div class="coach-volume"><label>مستوى الصوت</label><input id="coachVolume" type="range" min="0" max="1" step=".01" value="${volume}"><output id="coachVolumeValue">${Math.round(volume*100)}%</output></div></header>
+      <header class="coach-head coach-wizard-head"><div><p class="eyebrow">مساحة التدريب</p><h2 id="dialogTitle">${title}</h2><p class="song-meta">4 مسارات صوتية · ${fmt(songLength())}</p></div><div class="coach-volume"><label>مستوى الصوت</label><input id="coachVolume" type="range" min="0" max="1" step=".01" value="${volume}"><output id="coachVolumeValue">${Math.round(volume*100)}%</output></div></header>
       <nav class="coach-stepper"><button data-coach-step="1" class="active"><span>01</span><strong>اختيار الطبقة</strong></button><button data-coach-step="2" disabled><span>02</span><strong>التدريب</strong></button><button data-coach-step="3" disabled><span>03</span><strong>التسجيل</strong></button></nav>
       <section class="coach-step-panel coach-choose" data-step-panel="1"><div class="coach-page-intro"><div><p class="eyebrow">01 · اعثر على دورك</p><h3>اختر طبقتك</h3><p>استمع إلى المسارات واختر الطبقة الأقرب إلى مجال صوتك.</p></div><button id="coachMixPlay" class="all-voices-button"><span class="player-icon">▶</span><span class="all-label">استمع إلى الكورال كاملاً</span></button></div><div class="coach-voice-buttons">${VOICES.map((v,i)=>`<button data-coach-voice="${i}">${v.name}</button>`).join('')}</div><div class="coach-selected coach-selected-focus"><button id="coachVoicePlay" class="player-button" disabled>▶</button><div><strong id="coachVoiceName">اختر طبقتك</strong><p id="coachVoiceDesc">سيظهر هنا وصف الطبقة ومسارها الصوتي.</p></div><div class="coach-timeline"><div id="coachWaveWrap"><div class="coach-wave empty"></div></div><span id="coachVoiceTime">0:00 / ${fmt(songLength())}</span></div></div><div class="coach-step-nav single-next"><span></span><button id="coachVoiceNext" class="training-action primary coach-next-action" disabled>متابعة إلى التدريب ←</button></div></section>
       <section class="coach-step-panel coach-practice coach-training-page" data-step-panel="2" hidden><div class="coach-page-intro"><div><p class="eyebrow">02 · ثبّت دورك</p><h3>تدرّب على الجملة</h3><p>تتغيّر المقاطع بحسب الطبقة التي اخترتها.</p></div><div id="coachSegments" class="coach-segments"></div></div><div id="coachSummary" class="coach-summary"></div><div class="coach-lyrics"><span>الكلمات</span><p id="coachLyrics"></p></div><div class="coach-segment-stage"><div class="segment-stage-head"><div id="coachSegmentInfo" class="segment-info"></div><span>مسار الدور</span></div><div class="coach-segment-timeline"><div id="coachSegmentWaveWrap"></div><span id="coachSegmentWaveTime">0:00</span></div><button id="coachSegmentListen" class="training-action primary" disabled>استمع إلى المقطع</button></div><div class="coach-step-nav"><button class="training-action" data-go-step="1">→ اختيار الطبقة</button><div class="coach-nav-group"><button id="coachNextSegment" class="training-action">المقطع التالي</button><button id="coachTrainingNext" class="training-action primary coach-next-action" disabled>متابعة إلى التسجيل ←</button></div></div></section>
