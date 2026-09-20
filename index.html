@@ -244,22 +244,8 @@
   </footer>
 
   <script src="script.js?v=roles4"></script>
-  <script src="choir-training-data.js?v=roles4"></script>
+  <script src="choir-training-data.js?v=timing1"></script>
   <script src="recordings.js?v=1"></script>
-  <script src="choir-player-v2.js?v=roles4"></script>
-  <script>
-    (() => {
-      const detail = document.querySelector('#songDetail');
-      if (!detail) return;
-      const syncRoleCount = () => {
-        detail.querySelectorAll('.song-meta').forEach(node => {
-          if (node.textContent.includes('6 مسارات صوتية')) {
-            node.textContent = node.textContent.replace('6 مسارات صوتية', '4 مسارات صوتية');
-          }
-        });
-      };
-      new MutationObserver(syncRoleCount).observe(detail, { childList: true, subtree: true });
-    })();
-  </script>
+  <script src="choir-player-v2.js?v=timing1"></script>
 </body>
 </html>
