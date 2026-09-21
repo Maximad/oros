@@ -1,6 +1,6 @@
 const trainingStyles = document.createElement('link');
 trainingStyles.rel = 'stylesheet';
-trainingStyles.href = 'training-player.css';
+trainingStyles.href = 'training-player.css?v=final1';
 document.head.appendChild(trainingStyles);
 
 const songs = [

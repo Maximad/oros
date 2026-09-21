@@ -1,0 +1,13 @@
+# Runtime recordings must stay on the server and out of Git.
+recordings-data/audio/*
+recordings-data/meta/*.json
+recordings-data/rate/*
+
+# Keep protective directory rules in Git.
+!recordings-data/meta/.htaccess
+!recordings-data/rate/.htaccess
+
+# Local/editor noise.
+.DS_Store
+Thumbs.db
+*.log
