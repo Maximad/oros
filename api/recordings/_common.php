@@ -4,12 +4,20 @@ declare(strict_types=1);
 const RECORDING_MAX_BYTES = 12582912; // 12 MB
 const RECORDING_RATE_LIMIT = 12;
 const RECORDING_RATE_WINDOW = 3600;
+const RECORDING_PUBLIC_BASE = 'https://habaq.online/aswat/recordings-data';
 
 function recordings_root(): string {
     return dirname(__DIR__, 2);
 }
 
 function recordings_data_dir(): string {
+    $override = trim((string)(getenv('OROS_RECORDINGS_DIR') ?: ''));
+    if ($override !== '') return rtrim($override, '/\\');
+
+    $hostingRoot = dirname(recordings_root());
+    $sharedSite = $hostingRoot . '/aswat';
+    if (is_dir($sharedSite)) return $sharedSite . '/recordings-data';
+
     return recordings_root() . '/recordings-data';
 }
 
@@ -90,6 +98,16 @@ function recordings_rate_limit(): void {
     @file_put_contents($path, json_encode($events), LOCK_EX);
 }
 
+function recordings_public_audio_url(string $url): string {
+    $url = trim($url);
+    if ($url === '') return '';
+    if (preg_match('~^https?://~i', $url)) return $url;
+    if (str_starts_with($url, 'recordings-data/')) {
+        $url = substr($url, strlen('recordings-data/'));
+    }
+    return RECORDING_PUBLIC_BASE . '/' . ltrim($url, '/');
+}
+
 function recordings_public_item(array $item): array {
     return [
         'id' => (string)($item['id'] ?? ''),
@@ -99,7 +117,7 @@ function recordings_public_item(array $item): array {
         'segment' => (string)($item['segment'] ?? ''),
         'display_name' => (string)($item['display_name'] ?? ''),
         'duration' => (float)($item['duration'] ?? 0),
-        'audio_url' => (string)($item['audio_url'] ?? ''),
+        'audio_url' => recordings_public_audio_url((string)($item['audio_url'] ?? '')),
         'mime' => (string)($item['mime'] ?? ''),
     ];
 }

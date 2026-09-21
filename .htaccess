@@ -1,0 +1,17 @@
+Options -Indexes
+RewriteEngine On
+
+# Keep the existing Lifta font same-origin even though persistent assets stay
+# in public_html/aswat outside the Git deployment directory.
+RewriteRule ^assets/fonts/([^/]+\.(?:otf|ttf|woff|woff2|eot))$ asset-font.php?file=$1 [L,QSA,NC]
+
+# All other persistent media remain physically in public_html/aswat and are
+# served through the main habaq.online document root.
+RewriteRule ^assets/(.*)$ https://habaq.online/aswat/assets/$1 [R=302,L,NE]
+RewriteRule ^recordings-data/audio/(.*)$ https://habaq.online/aswat/recordings-data/audio/$1 [R=302,L,NE]
+
+<IfModule mod_headers.c>
+  <FilesMatch "\.(?:html?|js|css)$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+</IfModule>

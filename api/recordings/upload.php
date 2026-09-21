@@ -88,7 +88,7 @@ $item = [
     'display_name' => $displayName,
     'duration' => round($duration, 3),
     'mime' => $mime,
-    'audio_url' => 'recordings-data/audio/' . $audioName,
+    'audio_url' => RECORDING_PUBLIC_BASE . '/audio/' . rawurlencode($audioName),
     'size' => $size,
 ];
 

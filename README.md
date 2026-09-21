@@ -34,36 +34,50 @@
 - `choir-training-data.js` — الطبقات، المقاطع، الأزمنة والكلمات.
 - `choir-player-v2.js` — مشغّل التدريب والتسجيل والمقارنة.
 - `recordings.js` / `recordings.html` — حفظ التسجيلات وعرض الأرشيف.
-- `api/recordings/` — API بسيط بـ PHP لحفظ التسجيلات وبياناتها.
-- `recordings-data/` — تخزين التسجيلات على الخادم، ويجب عدم استبداله أثناء النشر.
+- `api/recordings/` — API بـ PHP لحفظ التسجيلات وبياناتها.
+- `.htaccess` — جسر للوسائط الدائمة عند تشغيل الموقع من مجلد Git.
+- `asset-font.php` — يقدّم الخط من مجلد الوسائط القديم من دون نقل ملف الخط إلى Git.
 
-## الوسائط
+## البنية النهائية على Hostinger
 
-الوسائط الدائمة موجودة على الاستضافة تحت:
-
-- `aswat/assets/`
-- `aswat/recordings-data/`
-
-ويجب الحفاظ على المجلدين خارج أي عملية استبدال للكود.
-
-## النشر على Hostinger
-
-GitHub `main` ينشر تلقائيًا إلى بيئة المعاينة:
+الكود يُنشر تلقائيًا من GitHub `main` إلى:
 
 `public_html/oros`
 
-بعد التحقق من المعاينة، تُنقل ملفات الكود إلى الموقع الحي:
-
-`public_html/aswat`
-
-باستخدام:
-
-```bash
-bash ~/domains/habaq.online/public_html/oros/deploy-live.sh
-```
-
-السكريبت يحفظ نسخة احتياطية من الكود الحالي، وينقل النسخة الجديدة، ولا يلمس `assets/` أو `recordings-data/`.
-
-الموقع الحي:
+ويُستخدم هذا المجلد مباشرة كمصدر موقع:
 
 `https://aswat.habaq.online`
+
+أما الوسائط والتسجيلات الدائمة فتبقى خارج Git في المجلد القديم:
+
+- `public_html/aswat/assets/`
+- `public_html/aswat/recordings-data/`
+
+الموقع يصل إلى ملفات الصوت والصور عبر:
+
+`https://habaq.online/aswat/assets/`
+
+ويسجّل المحاولات الجديدة مباشرة في:
+
+`public_html/aswat/recordings-data/`
+
+بهذه الطريقة لا يستطيع Git auto-deployment حذف الصور أو الصوت أو التسجيلات المحفوظة.
+
+## النشر
+
+التدفق النهائي:
+
+1. تعديل الكود ودفعه إلى `main`.
+2. Hostinger auto-deployment ينشره إلى `public_html/oros`.
+3. `aswat.habaq.online` يخدم محتوى `public_html/oros`.
+4. `public_html/aswat` يبقى مخزنًا دائمًا للوسائط والتسجيلات فقط.
+
+لا توجد خطوة `rsync` أو سكربت نشر يدوي بعد اعتماد هذا الترتيب.
+
+## ملاحظة عن الوسائط
+
+لا تضف مجلد `assets` إلى Git. لتحديث ملفات الصوت النهائية، ارفعها عبر Hostinger File Manager إلى:
+
+`public_html/aswat/assets/audio/`
+
+ولا تحذف `public_html/aswat/recordings-data/` لأنه يحتوي تسجيلات المستخدمين المحفوظة.

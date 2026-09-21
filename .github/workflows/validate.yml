@@ -29,10 +29,7 @@ jobs:
           php-version: '8.3'
 
       - name: Check PHP syntax
-        run: find api -name '*.php' -print0 | xargs -0 -n1 php -l
-
-      - name: Check deployment script
-        run: bash -n deploy-live.sh
+        run: find api -name '*.php' -print0 | xargs -0 -n1 php -l && php -l asset-font.php
 
       - name: Guard final SATB configuration
         run: |
@@ -43,3 +40,12 @@ jobs:
           grep -q "name: 'باس'" choir-training-data.js
           ! grep -q "كاونتر تينور" choir-training-data.js
           ! grep -q "دوبل باس" choir-training-data.js
+
+      - name: Guard shared Hostinger storage architecture
+        run: |
+          grep -q "public_html/aswat" README.md
+          grep -q "https://habaq.online/aswat/assets/audio/" choir-training-data.js
+          grep -q "RECORDING_PUBLIC_BASE" api/recordings/_common.php
+          grep -q "sharedSite" api/recordings/_common.php
+          grep -q "assets/fonts" .htaccess
+          grep -q "habaq.online/aswat/assets" .htaccess

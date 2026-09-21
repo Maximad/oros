@@ -14,7 +14,7 @@ window.OROS_TRAINING = (() => {
       duration: 64.896,
       trimStart: 2.40,
       trimEnd: 64.68,
-      base: 'https://aswat.habaq.online/assets/audio/wasla-turathiya/',
+      base: 'https://habaq.online/aswat/assets/audio/wasla-turathiya/',
       segmentsByVoice: {
         soprano: [
           s('السويدا باهلها', 7.18, 17.00, 'السويدا باهلها، السويدا باهلها.'),
@@ -56,7 +56,7 @@ window.OROS_TRAINING = (() => {
       duration: 66.873,
       trimStart: 3.60,
       trimEnd: 65.80,
-      base: 'https://aswat.habaq.online/assets/audio/Deerty/',
+      base: 'https://habaq.online/aswat/assets/audio/Deerty/',
       segmentsByVoice: {
         soprano: [
           s('غيبتي / يا ديرتي / إلى اللقا', 17.90, 41.68, 'ما اتطول عنك غيبتي. يا ديرتي يا ديرتي، وداعًا يا حبيبتي. إلى اللقا يا زنبقة، لولا الشقا، ما اتطول عنك غيبتي.'),
