@@ -22,11 +22,24 @@ tar -czf "$BACKUP" \
 echo "Backup: $BACKUP"
 
 echo "== Syncing staging code to live =="
-rsync -av \
-  --exclude='.git/' \
-  --exclude='assets/' \
-  --exclude='recordings-data/' \
-  "$SRC/" "$LIVE/"
+if command -v rsync >/dev/null 2>&1; then
+  rsync -av \
+    --exclude='.git/' \
+    --exclude='assets/' \
+    --exclude='recordings-data/' \
+    "$SRC/" "$LIVE/"
+else
+  echo "rsync not found; using cp fallback"
+  shopt -s dotglob nullglob
+  for item in "$SRC"/*; do
+    name="$(basename "$item")"
+    case "$name" in
+      .git|assets|recordings-data) continue ;;
+    esac
+    cp -a "$item" "$LIVE/"
+  done
+  shopt -u dotglob nullglob
+fi
 
 # Remove known obsolete files from older versions. Their history remains in Git.
 rm -f \
